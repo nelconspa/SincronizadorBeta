@@ -10,7 +10,7 @@ export default defineConfig(({ mode }) => {
 
   return {
     plugins: [vue()],
-    base: './',
+    base: '/SincronizadorBeta/',
     css: {
       postcss: {
         plugins: [
