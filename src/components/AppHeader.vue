@@ -6,7 +6,11 @@
       </CHeaderToggler>
       <CHeaderNav class="d-none d-md-flex">
         <CNavItem>
-          <CNavLink href="/dashboard"> Inicio </CNavLink>
+          <CNavLink href="/dashboard"> 
+            <div class="clearfix">
+              <CImage align="center" :src="logoHidrosistemas" rounded  width="300" height="90"/>
+            </div> 
+          </CNavLink>
         </CNavItem>
       </CHeaderNav>
       
@@ -67,6 +71,7 @@ import { onMounted, ref } from 'vue'
 import { useColorModes } from '@coreui/vue'
 import AppBreadcrumb from './AppBreadcrumb'
 import AppHeaderDropdownAccnt from './AppHeaderDropdownAccnt'
+import logoHidrosistemas from '@/assets/brand/hidrosistemas-logo.jpeg'
 export default {
   name: 'AppHeader',
   components: {
@@ -74,6 +79,7 @@ export default {
     AppHeaderDropdownAccnt,
   },
   setup() {
+    
     const headerClassNames = ref('mb-4 p-0')
     const { colorMode, setColorMode } = useColorModes('coreui-free-vue-admin-template-theme')
 
@@ -91,6 +97,7 @@ export default {
       headerClassNames,
       colorMode,
       setColorMode,
+      logoHidrosistemas
     }
   },
 }
