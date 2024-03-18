@@ -9,36 +9,42 @@
                             <CCol class="col-6">
                                 <CFormInput
                                     label="Correo electrónico"
-                                    v-model="form.email"
+                                    v-model="formAccount.email"
                                     disabled
                                 ></CFormInput>
                             </CCol>
                             <CCol class="col-6">
                                 <CFormInput
                                     label="Rut"
-                                    v-model="form.rut"
+                                    v-model="formAccount.rut"
                                 ></CFormInput>
                             </CCol>
                             <CCol class="col-12 mt-4">  
                                 <CFormInput
                                     label="Nombres"
-                                    v-model="form.names"
+                                    v-model="formAccount.names"
                                 ></CFormInput>
                             </CCol>
                             <CCol class="col-6 mt-4">
                                 <CFormInput
                                     label="Apellido Paterno"
-                                    v-model="form.surname1"
+                                    v-model="formAccount.surname1"
                                 ></CFormInput>
                             </CCol>
                             <CCol class="col-6 mt-4">
                                 <CFormInput
                                     label="Apellido Materno"
-                                    v-model="form.surname2"
+                                    v-model="formAccount.surname2"
                                 ></CFormInput>
                             </CCol>
                         </CRow>
-                        <CButton size="lg" color="primary" shape="rounded-pill" class="mt-4">
+                        <CButton 
+                            size="lg" 
+                            color="primary" 
+                            shape="rounded-pill" 
+                            class="mt-4"
+                            @click="saveDataProfile"
+                        >
                             Guardar
                         </CButton>
                     </CForm>
@@ -53,7 +59,9 @@
                         <CFormInput
                         label="Contraseña actual"
                         placeholder="Contraseña"
+                        type="password"
                         class=""
+                        v-model="formPassword.currentPassword"
                         ></CFormInput>
                     
                     </div>
@@ -61,15 +69,26 @@
                         <CFormInput
                             label="Nueva contraseña"
                             placeholder="Nueva contraseña"
+                            type="password"
+                            v-model="formPassword.newPassword"
+
                         ></CFormInput>
                     </div>
                     <div class=mt-4>
                         <CFormInput
                             label="Confirmar contraseña"
                             placeholder="Confirmar contraseña"
+                            type="password"
+                            v-model="formPassword.confirmPassword"
                         ></CFormInput>
                     </div>
-                    <CButton size="lg" color="primary" shape="rounded-pill" class="mt-4"
+                    <CButton 
+                        size="lg" 
+                        color="primary" 
+                        shape="rounded-pill" 
+                        class="mt-4"
+                        
+                        @click="changePassword"
                     >Cambiar contraseña</CButton>
                 </CCardBody>
             </CCard>
@@ -85,12 +104,18 @@ import axios from 'axios';
         name: 'Profile',
         data() {
             return {
-                form: {
+                formAccount: {
+                    id: '',
                     email: '', 
                     rut: '',
                     names: '',
                     surname1: '',
-                    surname2: ''
+                    surname2: '',
+                },
+                formPassword: {
+                    currentPassword: '',
+                    newPassword: '',
+                    confirmPassword: ''
                 }
             }
         },
@@ -110,16 +135,52 @@ import axios from 'axios';
                         }
                     }
                 ); 
-
+                 
                 this.setDataAccount(response.data); 
             },
 
+            async saveDataProfile() { 
+                const response = axios.put(
+                    this.$store.state.backendUrl + '/account/',
+                    this.formAccount,
+                    {
+                        headers: {
+                                'Content-Type': 'application/json',
+                                Authorization: 'Bearer ' + this.$store.state.token,
+                        }
+                    }
+                ); 
+
+                console.log(response.data); 
+            },
+
+            changePassword() {
+                if (this.formPassword.newPassword !== this.formPassword.confirmPassword) {
+                    alert("Las contraseñas no coinciden.");
+                    return; 
+                }
+                const response = axios.post(
+                    this.$store.state.backendUrl + '/account/changePassword',
+                    this.formPassword,
+                    {
+                        headers: {
+                                'Content-Type': 'application/json',
+                                Authorization: 'Bearer ' + this.$store.state.token,
+                        }
+                    }
+                ); 
+                console.log(response.data); 
+
+            },
+
             setDataAccount(data) {
-                this.form.email = data.email; 
-                this.form.rut = data.rut; 
-                this.form.names = data.names; 
-                this.form.surname1 = data.surname1; 
-                this.form.surname2 = data.surname2; 
+                console.log(data);
+                this.formAccount.id = data.id;
+                this.formAccount.email = data.email; 
+                this.formAccount.rut = data.rut; 
+                this.formAccount.names = data.names; 
+                this.formAccount.surname1 = data.surname1; 
+                this.formAccount.surname2 = data.surname2; 
             }
         }
     }
