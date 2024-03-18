@@ -9,11 +9,7 @@
                 {{ successMsg }}
             </CAlert>
 
-            <div>
-                <CButton color="danger" variant="outline" @click="handleDeleteModal">
-                    <CIcon :icon="icon.cilTrash" size="lg"/>
-                </CButton>
-            </div>
+            
             <CForm class="mt-3">
 
                 <CFormInput

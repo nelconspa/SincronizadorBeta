@@ -10,6 +10,16 @@ body {
   @include transition(padding .15s);
 }
 
+.sidebar {
+  --cui-sidebar-width: 18.3rem;
+}
+
+
+.header-sticky {
+    margin-left:1.5rem;
+  }
+
+
 .header > .container-fluid,
 .sidebar-header {
   min-height: calc(4rem + 1px); // stylelint-disable-line function-disallowed-list

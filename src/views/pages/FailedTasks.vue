@@ -38,7 +38,7 @@
             </CTableRow>
         </CTableHead>
         <CTableBody>
-            <CTableRow v-for="(task, index) in filteredTasks" :key="index">
+            <CTableRow v-for="(task, index) in displayedTasks" :key="index">
                 <template v-if="task.client !== null">
                     <CTableDataCell>{{ task.client.name }} </CTableDataCell>
                 </template>
@@ -53,6 +53,43 @@
         </CTableBody>
     </CTable>
 
+    <div class="style-pagination mt-5">
+        <vue-awesome-paginate 
+            :total-items="totalPages"
+            :items-per-page="perPage"
+            :max-pages-shown="5"
+            v-model="currentPage"
+        >
+            <template #prev-button>
+                <span>
+                <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="white"
+                    width="12"
+                    height="12"
+                    viewBox="0 0 24 24"
+                >
+                    <path d="M8.122 24l-4.122-4 8-8-8-8 4.122-4 11.878 12z" />
+                </svg>
+                </span>
+            </template>
+
+            <template #next-button>
+                <span>
+                <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="white"
+                    width="12"
+                    height="12"
+                    viewBox="0 0 24 24"
+                >
+                    <path d="M8.122 24l-4.122-4 8-8-8-8 4.122-4 11.878 12z" />
+                </svg>
+                </span>
+            </template>
+        </vue-awesome-paginate>
+    
+    </div>
     
 </template>
 
@@ -79,12 +116,20 @@
                 clientsFilter: [],
                 devicesFilter: [],
                 totalDevices: [],
+                perPage: 10,
+                currentPage: 1,
+                totalPages: 0
                 
             }
             
         },
-
+       
         computed: {
+            displayedTasks() {
+                const startIndex = (this.currentPage - 1) * this.perPage;
+                const endIndex = startIndex + this.perPage;
+                return this.filteredTasks.slice(startIndex, endIndex);
+            },
             filteredTasks() {
                 let filterTasks = this.failTasks;   
                 if (this.clientsFilter.length > 0) {
@@ -93,16 +138,25 @@
                     );
                 }
                 if (this.devicesFilter.length > 0 && this.devicesFilter.length < this.totalDevices.length) {
-                    console.log("DEVICES FILTER EN FILTERED TASKS: ", this.devicesFilter)
                     filterTasks = filterTasks.filter(task => 
                         this.devicesFilter.includes(task.last_error.device_id)
                     )
+                    
                 }
+                //const startIndex = (this.currentPage - 1) * this.perPage; 
+                //const endIndex = startIndex + this.perPage; 
 
-                return filterTasks; 
+                //return filterTasks.slice(startIndex, endIndex);  
+                return filterTasks;
             }
 
         }, 
+        watch: {
+        // Observador para calcular el número total de páginas
+            filteredTasks() {
+                this.totalPages = Math.ceil(this.filteredTasks.length / this.perPage);
+            }
+        },
 
         mounted() {
             this.getFailedTasks(); 
@@ -120,7 +174,7 @@
             }, 
             handleDevices(options) {
                 this.devicesFilter = options; 
-                this.getDevicesByClients(); 
+                //this.getDevicesByClients(); 
                 console.log("DEVICES: ",options); 
             }, 
 
@@ -178,3 +232,54 @@
         }
     } 
 </script>
+
+<style>
+    .style-pagination .pagination-container {
+        column-gap: 10px;
+        align-items: center;
+        }
+    .style-pagination .paginate-buttons {
+        height: 35px;
+        width: 35px;
+        cursor: pointer;
+        border-radius: 4px;
+        background-color: transparent;
+        border: none;
+        color: black;
+        }
+
+    .style-pagination .back-button,
+    .style-pagination .next-button {
+        background-color: black;
+        color: white;
+        border-radius: 8px;
+        height: 45px;
+        width: 45px;
+        }
+    .style-pagination .active-page {
+        background-color: #e5e5e5;
+        }
+    .style-pagination .paginate-buttons:hover {
+        background-color: #f5f5f5;
+        }
+    .style-pagination .active-page:hover {
+        background-color: #e5e5e5;
+        }
+
+    .style-pagination .back-button svg {
+        transform: rotate(180deg) translateY(-2px);
+        }
+    .style-pagination .next-button svg {
+        transform: translateY(2px);
+        }
+
+    .style-pagination .back-button:hover,
+    .style-pagination .next-button:hover {
+        background-color: rgb(45, 45, 45);
+        }
+
+    .style-pagination .back-button:active,
+    .style-pagination .next-button:active {
+        background-color: rgb(85, 85, 85);
+    }
+</style>

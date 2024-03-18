@@ -167,7 +167,7 @@
             handleDevices(options) {
                 this.devicesFilter = options; 
                 console.log(options); 
-                this.getDevicesByClients(); 
+                //this.getDevicesByClients(); 
             }, 
 
             async getStatusTasks() {

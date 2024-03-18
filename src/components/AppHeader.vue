@@ -8,7 +8,7 @@
         <CNavItem>
           <CNavLink href="/dashboard"> 
             <div class="clearfix">
-              <CImage align="center" :src="logoHidrosistemas" rounded  width="300" height="90"/>
+              Inicio
             </div> 
           </CNavLink>
         </CNavItem>
