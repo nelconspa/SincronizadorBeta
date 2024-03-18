@@ -21,11 +21,9 @@
                 Cliente eliminado exitósamente. 
             </CAlert>
 
-            <DeleteButton 
-                @click=""
-            />
+           
             <CButton 
-                @click="deleteClient"
+                @click="deleteUser"
                 color="danger" 
                 class="text-white">Eliminar
             </CButton>
@@ -41,35 +39,51 @@
 
     export default {
         name: 'DeleteModal',
-        components: {
-            DeleteButton
-        },
+        
         emits: ['closeDeleteModal'],
         props: {   
             showDeleteModal: Boolean, 
-            client: Object
+            user: Object
         },
         data() {
             return {
                 fail: false,
                 success: false,
+                profile: null
             }
+        },
+        mounted() {
+            this.getDataAccount(); 
         },
         methods: {
             closeModal() {
                 this.$emit('closeDeleteModal');
                 this.fail = false;
-                this.sucess = false;
+                this.success = false;
             },
-            
+
+            async getDataAccount() {
+                const response = await axios.get(
+                    this.$store.state.backendUrl + '/account',
+                    {
+                        headers: {
+                                'Content-Type': 'application/json',
+                                Authorization: 'Bearer ' + this.$store.state.token,
+                        }
+                    }
+                ); 
+
+                this.profile = response.data; 
+                console.log(this.profile); 
+            },
            
-            deleteClient() {
-                if (this.client.client_configs.length) {
+            async deleteUser() {
+               if (this.user.id === this.profile.id) {
                     this.fail = true; 
                 
                 } else {
                     axios.delete(
-                        this.$store.state.backendUrl+'/clients/' + this.client.id,
+                        this.$store.state.backendUrl+'/users/' + this.user.id,
                         {
                             headers: {
                                 "Content-Type": "application/json",
@@ -85,7 +99,7 @@
                             console.log("Error: ", error);
                             //this.errorMsg = "Ha ocurrido un error: " + error; 
                      })
-                } 
+                }   
                   
             }
 

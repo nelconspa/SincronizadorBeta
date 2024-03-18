@@ -152,7 +152,6 @@
 
         }, 
         watch: {
-        // Observador para calcular el número total de páginas
             filteredTasks() {
                 this.totalPages = Math.ceil(this.filteredTasks.length / this.perPage);
             }

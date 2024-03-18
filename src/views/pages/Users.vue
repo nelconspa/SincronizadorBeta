@@ -15,7 +15,7 @@
                 <CTableHeaderCell scope="col">Nombre</CTableHeaderCell>
                 <CTableHeaderCell scope="col">Perfil</CTableHeaderCell>
                 <CTableHeaderCell scope="col">Correo</CTableHeaderCell>
-                <CTableHeaderCell scope="col">Editar</CTableHeaderCell>
+                <CTableHeaderCell scope="col">Herramientas</CTableHeaderCell>
             </CTableRow>
         </CTableHead>
         <CTableBody>
@@ -28,6 +28,9 @@
                     <CButton @click="editUser(user)">
                         <!-- <CIcon :icon="icon.cilPencil" size="xl"/> -->
                         <font-awesome-icon icon="pen-to-square" size="xl" />
+                    </CButton>
+                    <CButton @click="deleteUser(user)">
+                        <font-awesome-icon icon="trash" size="xl" />
                     </CButton>
                 </CTableDataCell>
                 
@@ -44,6 +47,20 @@
         :user="user_id"
         @cerrar="onCloseEdit"
     />
+    <DeleteUser
+        :showDeleteModal="showDeleteModal"
+        @closeDeleteModal="onCloseDeleteModal"
+        :user="user_id"
+        
+    >
+        <template v-slot:modalTitle>Eliminar Cliente: <b>{{ user_id.name }}</b></template>
+        <template v-slot:modalBody>
+            ADVERTENCIA: Se eliminarán todos los datos de este cliente.
+        </template>
+        <template v-slot:modalFooter>
+        </template>
+
+    </DeleteUser>
 </template>
 
 <script>
@@ -53,14 +70,16 @@
     import * as icon from '@coreui/icons';
     import AddUserModal from '../../components/AddUser.vue'; 
     import EditUserModal from '../../components/EditUser.vue'; 
+    import DeleteUser from '../../components/DeleteUser.vue'; 
 
     export default {
-        name: "Clients",
+        name: "Users",
         components: {
             SearchBarFilter,
             CIcon,
             AddUserModal,
-            EditUserModal
+            EditUserModal,
+            DeleteUser,
         },
         setup() {
             return {
@@ -72,7 +91,8 @@
                 users: [],
                 searchFilter: '',
                 showAddModal: false,
-                showEditModal: false, 
+                showEditModal: false,
+                showDeleteModal: false, 
                 user_id: null,
             }
             
@@ -101,6 +121,11 @@
             editUser(user) {
                 this.showEditModal = true; 
                 this.user_id = user;  
+            },
+            async deleteUser(user) {
+                this.showDeleteModal = true; 
+                this.user_id = user;
+                
             },
 
             addUser() {
@@ -140,7 +165,11 @@
             onCloseEdit() {
                 this.showEditModal = false;
                 this.getUsers(); 
-            }
+            },
+            onCloseDeleteModal() { 
+                this.showDeleteModal = false; 
+                this.getUsers();
+            },
         }
     }
 
