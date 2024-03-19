@@ -48,6 +48,14 @@
                             Guardar
                         </CButton>
                     </CForm>
+                    <CAlert color="success"
+                        :visible="successUserData">
+                        {{ successUserDataMsg }}
+                    </CAlert>
+                    <CAlert color="danger"
+                        :visible="failUserData">
+                        {{ failUserDataMsg }}
+                    </CAlert>
                 </CCardBody>
             </CCard>
         </CCol>
@@ -79,7 +87,7 @@
                             label="Confirmar contraseña"
                             placeholder="Confirmar contraseña"
                             type="password"
-                            v-model="formPassword.confirmPassword"
+                            v-model="formPassword.newPassword_confirmation"
                         ></CFormInput>
                     </div>
                     <CButton 
@@ -90,6 +98,14 @@
                         
                         @click="changePassword"
                     >Cambiar contraseña</CButton>
+                    <CAlert color="success"
+                        :visible="successPassword">
+                        {{ successPasswordMsg }}
+                    </CAlert>
+                    <CAlert color="danger"
+                        :visible="failPassword">
+                        {{ failPasswordMsg }}
+                    </CAlert>
                 </CCardBody>
             </CCard>
         </CCol>
@@ -115,8 +131,18 @@ import axios from 'axios';
                 formPassword: {
                     currentPassword: '',
                     newPassword: '',
-                    confirmPassword: ''
-                }
+                    newPassword_confirmation: ''
+                },
+                successUserData: false,
+                failUserData: false,
+                successPassword: false,
+                failPassword: false,
+                successUserDataMsg: '',
+                failUserDataMsg: '',
+                successPasswordMsg: '',
+                failPasswordMsg: '',
+                
+                
             }
         },
 
@@ -139,37 +165,86 @@ import axios from 'axios';
                 this.setDataAccount(response.data); 
             },
 
-            async saveDataProfile() { 
-                const response = axios.put(
-                    this.$store.state.backendUrl + '/account/',
-                    this.formAccount,
-                    {
-                        headers: {
-                                'Content-Type': 'application/json',
-                                Authorization: 'Bearer ' + this.$store.state.token,
+            async saveDataProfile() {
+                try {
+                    const response = await axios.put(
+                        this.$store.state.backendUrl + '/account/',
+                        this.formAccount,
+                        {
+                            headers: {
+                                    'Content-Type': 'application/json',
+                                    Authorization: 'Bearer ' + this.$store.state.token,
+                            }
+                        }
+                    ); 
+                    this.successUserDataMsg = 'Usuario actualizado exitósamente.'; 
+                    this.successUserData = true; 
+                    setTimeout(() => {
+                        this.successUserData = false;
+                        this.successUserDataMsg = '';
+                    }, 2000);
+                    
+                } catch(error) {
+                    if (error.response) {
+                        const errors = error.response.data.errors; 
+                        for (const key in errors) {
+                            if (errors.hasOwnProperty(key)) {
+                                const errMsg = errors[key];
+                                this.failUserDataMsg += `${errMsg}\n`;  
+                                this.failUserData = true; 
+
+                                setTimeout(() => {
+                                    this.failUserData = false;
+                                    this.failUserDataMsg = '';
+                                }, 2000);
+                                
+                            }
                         }
                     }
-                ); 
-
-                console.log(response.data); 
+                }
+                 
             },
 
-            changePassword() {
-                if (this.formPassword.newPassword !== this.formPassword.confirmPassword) {
-                    alert("Las contraseñas no coinciden.");
-                    return; 
-                }
-                const response = axios.post(
-                    this.$store.state.backendUrl + '/account/changePassword',
-                    this.formPassword,
-                    {
-                        headers: {
-                                'Content-Type': 'application/json',
-                                Authorization: 'Bearer ' + this.$store.state.token,
+            async changePassword() {
+                try {
+                    const response = await axios.post(
+                        this.$store.state.backendUrl + '/account/changePassword',
+                        this.formPassword,
+                        {
+                            headers: {
+                                    'Content-Type': 'application/json',
+                                    Authorization: 'Bearer ' + this.$store.state.token,
+                            }
+                        }
+                    ); 
+                    console.log(response.data); 
+                    this.successPasswordMsg = 'Usuario actualizado exitósamente.'; 
+                    this.successPassword = true; 
+
+                    setTimeout(() => {
+                        this.successPassword = false;
+                        this.successPasswordMsg = '';
+                    }, 2000);
+
+                } catch(error) {
+                    if (error.response) {
+                        const errors = error.response.data.errors; 
+                        for (const key in errors) {
+                            if (errors.hasOwnProperty(key)) {
+                                const errMsg = errors[key];
+                                this.failPasswordMsg += `${errMsg}\n`;  
+                                this.failPassword = true; 
+
+                                setTimeout(() => {
+                                    this.failPassword = false;
+                                    this.failPasswordMsg = '';
+                                }, 2000);
+                                
+                            }
                         }
                     }
-                ); 
-                console.log(response.data); 
+                }   
+                
 
             },
 

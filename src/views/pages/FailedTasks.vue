@@ -55,7 +55,7 @@
 
     <div class="style-pagination mt-5">
         <vue-awesome-paginate 
-            :total-items="totalPages"
+            :total-items="filteredTasks.length"
             :items-per-page="perPage"
             :max-pages-shown="5"
             v-model="currentPage"
@@ -143,6 +143,14 @@
                     )
                     
                 }
+
+                if (this.searchFilter !== '') {
+                    filterTasks = filterTasks.filter(task => 
+                        (task.device && task.device.zeusName.toLowerCase().includes(this.searchFilter.toLowerCase())) ||
+                        (task.client && task.client.name.toLowerCase().includes(this.searchFilter.toLowerCase()))
+                    );
+                }
+
                 //const startIndex = (this.currentPage - 1) * this.perPage; 
                 //const endIndex = startIndex + this.perPage; 
 

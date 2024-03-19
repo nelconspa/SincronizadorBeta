@@ -137,6 +137,12 @@
                         task.enabled === 1
                     );
                 }
+                if (this.searchFilter !== '') {
+                    filterTasks = filterTasks.filter(task => 
+                        (task.zeusName && task.zeusName.toLowerCase().includes(this.searchFilter.toLowerCase())) ||
+                        (task.client && task.client.name.toLowerCase().includes(this.searchFilter.toLowerCase()))
+                    );
+                }
 
                 console.log(filterTasks); 
                 
