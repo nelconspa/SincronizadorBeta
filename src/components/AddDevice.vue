@@ -8,6 +8,10 @@
                 :visible="success">
                 {{ successMsg }}
             </CAlert>
+            <CAlert color="danger"
+                :visible="fail">
+                {{ failMsg }}
+            </CAlert>
             <CForm>
                 <CRow>
                     <CCol class="col-12">
@@ -194,7 +198,9 @@
                 selected: null,
                 options: [],
                 success: false,
-                successMsg: ''
+                fail: false,
+                successMsg: '',
+                failMsg: ''
             }
         },
         validations() {
@@ -293,14 +299,20 @@
                 
                
             },
+            restoreInitialData() {
+                this.fail = false;
+                this.success = false; 
+                this.failMsg = ''; 
+                this.successMsg = '';
+            },
             closeModal() {
-                console.log("Cerrandose modal")
+                this.restoreInitialData(); 
                 this.$emit('cerrar'); 
-                this.success=false; 
+                 
             },
 
             closeModalOutside(event) {
-                console.log("Cerrándose modal en funcion2");
+                
                 const modalContent = document.querySelector(".modal-class");
                 if (!modalContent.contains(event.target)) {
                     console.log("Entra al if");
@@ -377,27 +389,46 @@
                 });
             },
 
-            saveDevice() {
+            async saveDevice() {
                 this.setTouched('all');
                 if(!this.v$.$invalid) {
-                    axios.post(
-                        this.$store.state.backendUrl + '/devices',
-                        this.form,
-                        {
-                            headers: {
-                                'Content-Type': 'application/json',
-                                Authorization: 'Bearer ' + this.$store.state.token,
+                    try {
+                        const response = await axios.post(
+                            this.$store.state.backendUrl + '/devices',
+                            this.form,
+                            {
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    Authorization: 'Bearer ' + this.$store.state.token,
+                                }
+                            }
+                        )
+                        console.log(response); 
+                        this.successMsg = 'Dispositivo añadido exitósamente.'; 
+                        this.success = true; 
+                        setTimeout(() => {
+                            this.closeModal(); 
+                        }, 2000);
+
+                    } catch (error) {
+                        if (error.response) {
+                            const errors = error.response.data.errors; 
+                            for (const key in errors) {
+                                if (errors.hasOwnProperty(key)) {
+                                    const errMsg = errors[key];
+                                    this.failMsg = this.failMsg.concat(errMsg, "\n");  
+                                    this.fail = true; 
+
+                                    setTimeout(() => {
+                                        this.restoreInitialData();
+                                    //    this.closeModal(); 
+                                    }, 2000);
+                                    
+                                }
                             }
                         }
-                    )
-                    .then((res) => {
-                        console.log(res); 
-                        this.successMsg = "Dispositivo añadido exitósamente."; 
-                        this.success = true; 
-                    })
-                    .catch((error) =>  {
-                        console.log("Error en post: ", error); 
-                    })
+                    }
+                    
                 }
                 
             }

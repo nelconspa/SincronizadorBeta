@@ -187,6 +187,8 @@
                 clients: [],
                 successMsg: '', 
                 success: false,
+                fail: false,
+                failMsg: '',
                 
             }
         },
@@ -292,7 +294,14 @@
                 
                
             },
+            restoreInitialData() {
+                this.fail = false;
+                this.success = false; 
+                this.failMsg = ''; 
+                this.successMsg = '';
+            },
             closeModal() {
+                this.restoreInitialData();
                 this.$emit('cerrar'); 
                 this.success = false;
             },
@@ -424,24 +433,44 @@
             saveDevice() {
                 this.setTouched('all');
                 if(!this.v$.$invalid) {
-                    axios.put(
-                        this.$store.state.backendUrl + '/devices/' + this.form.id,
-                        this.form,
-                        {
-                            headers: {
-                                'Content-Type': 'application/json',
-                                Authorization: 'Bearer ' + this.$store.state.token,
+                    try {
+                        const response = axios.put(
+                            this.$store.state.backendUrl + '/devices/' + this.form.id,
+                            this.form,
+                            {
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    Authorization: 'Bearer ' + this.$store.state.token,
+                                }
+                            }
+                        )
+                        console.log(response); 
+                        this.successMsg = 'Dispositivo actualizado exitósamente.'; 
+                        this.success = true; 
+                        setTimeout(() => {
+                            this.closeModal(); 
+                        }, 2000);
+
+                    } catch (error) {
+                        if (error.response) {
+                            const errors = error.response.data.errors; 
+                            for (const key in errors) {
+                                if (errors.hasOwnProperty(key)) {
+                                    const errMsg = errors[key];
+                                    this.failMsg = this.failMsg.concat(errMsg, "\n");  
+                                    this.fail = true; 
+
+                                    setTimeout(() => {
+                                        this.restoreInitialData();
+                                    //    this.closeModal(); 
+                                    }, 2000);
+                                    
+                                }
                             }
                         }
-                    )
-                    .then((res) => {
-                        console.log(res); 
-                        this.successMsg = "Dispositivo actualizado correctamente."; 
-                        this.success = true; 
-                    })
-                    .catch((error) =>  {
-                        console.log("Error en post: ", error); 
-                    })
+                    }
+                    
+                    
                 }
                 
             }

@@ -15,8 +15,8 @@
   >
     <CSidebarHeader class="border-bottom">
       <RouterLink custom to="/" v-slot="{ href, navigate }">
-        <CSidebarBrand v-bind="$attrs" as="a" :href="href" @click="navigate">
-          <CImage align="center" :src="logoHidrosistemas" rounded  width="260" height="80"/>
+        <CSidebarBrand class="text-center" v-bind="$attrs" as="a" :href="href" @click="navigate">
+          <CImage align="center" :src="logoHidrosistemas" rounded  width="200"/>
 <!--           <CIcon custom-class-name="sidebar-brand-full" :icon="logo" :height="40" />
  -->          
         </CSidebarBrand>

@@ -32,8 +32,6 @@
             
             filter(e) {
                 this.$emit('filter', this.selectedDevices); 
-                console.log("SELECTED DEVICES:",this.selectedDevices); 
-                
             }
         }
     }

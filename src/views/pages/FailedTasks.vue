@@ -116,6 +116,7 @@
                 clientsFilter: [],
                 devicesFilter: [],
                 totalDevices: [],
+                selectedDevices: [], // dispositivos seleccionados cuando ya se renderizan
                 perPage: 10,
                 currentPage: 1,
                 totalPages: 0
@@ -180,9 +181,14 @@
                 
             }, 
             handleDevices(options) {
-                this.devicesFilter = options; 
+                //this.devicesFilter = options; 
                 //this.getDevicesByClients(); 
-                console.log("DEVICES: ",options); 
+                
+                //console.log("DEVICES: ",options); 
+                if (!this.selectedDevices.includes(options)) {
+                    this.selectedDevices.push(options);
+                }
+                console.log("DEVICES: ", this.selectedDevices);
             }, 
 
             
@@ -228,7 +234,12 @@
                         }))); 
                     }
                     this.totalDevices = devices; 
-                    this.devicesFilter = devices; 
+                    //this.devicesFilter = devices;
+                    console.log("DISPOSITIVOS EN GETDEVICES: ", this.selectedDevices); 
+                    if (this.selectedDevices.length === 0) {
+                        this.devicesFilter = devices;
+                    }
+
                     
                 } catch (error) {
                     

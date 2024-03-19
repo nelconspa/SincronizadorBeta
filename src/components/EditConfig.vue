@@ -8,6 +8,10 @@
                 :visible="success">
                 {{ successMsg }}
             </CAlert>
+            <CAlert color="danger"
+                :visible="fail">
+                {{ failMsg }}
+            </CAlert>
             <CForm>
                 <CRow>
                     <CCol class="col-12 mt-4">
@@ -152,7 +156,9 @@
                 configs: [],
                 clients: [],
                 success: false,
-                successMsg: ''
+                fail: false,
+                successMsg: '',
+                failMsg: '',
                 
             }
         },
@@ -257,30 +263,48 @@
                 console.log("option: ",options);
             },
             async saveConfig() {
-                try {
-                    const response = await axios.put(
-                        this.$store.state.backendUrl + '/client_configs/' + this.form.id,
-                        this.form,
-                        {
-                            headers: {
-                                'Content-Type': 'application/json',
-                                Authorization: 'Bearer ' + this.$store.state.token,
+                this.setTouched('all');
+                if (!this.v$.$invalid) {
+                    try {
+                        const response = await axios.put(
+                            this.$store.state.backendUrl + '/client_configs/' + this.form.id,
+                            this.form,
+                            {
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    Authorization: 'Bearer ' + this.$store.state.token,
+                                }
                             }
-                        }
-                    )
-                    .then((res) => {
-                        console.log(res); 
-                        this.successMsg = "Configuración actualizada correctamente."; 
+                        )
+                        console.log(response); 
+                        this.successMsg = 'Configuración actualizada exitósamente.'; 
                         this.success = true; 
-                    })
-                    .catch((error) =>  {
-                        console.log("Error en post: ", error); 
-                    })
-
+                        setTimeout(() => {
+                            this.closeModal(); 
+                        }, 2000);
                     
-                } catch(error) {
-                    console.error('Error en la solicitud a la API:', error);
+
+                        
+                    } catch(error) {
+                        if (error.response) {
+                                const errors = error.response.data.errors; 
+                                for (const key in errors) {
+                                    if (errors.hasOwnProperty(key)) {
+                                        const errMsg = errors[key];
+                                        this.failMsg = this.failMsg.concat(errMsg, "\n");  
+                                        this.fail = true; 
+
+                                        setTimeout(() => {
+                                            this.restoreInitialData();
+                                        //    this.closeModal(); 
+                                        }, 2000);
+                                        
+                                    }
+                                }
+                        }
+                    }
                 }
+                
                 
             },
             setDataConfig(newConfig) {
@@ -299,9 +323,15 @@
                     this.form.dgaPassword = newConfig.dgaPassword; 
                 } 
             },
-            closeModal() {
-                this.$emit('cerrar'); 
+            restoreInitialData() {
+                this.fail = false;
                 this.success = false; 
+                this.failMsg = ''; 
+                this.successMsg = '';
+            }, 
+            closeModal() {
+                this.restoreInitialData(); 
+                this.$emit('cerrar'); 
             },
 
             closeModalOutside(event) {

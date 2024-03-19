@@ -1,12 +1,16 @@
 <template>
     <CModal :visible="showModal" @click.native="closeModalOutside">
         <CModalHeader>
-            <CModalTitle>Editar Cliente</CModalTitle>
+            <CModalTitle>Editar Usuario</CModalTitle>
         </CModalHeader>
         <CModalBody>
             <CAlert color="success"
                 :visible="success">
                 {{ successMsg }}
+            </CAlert>
+            <CAlert color="danger"
+                :visible="fail">
+                {{ failMsg }}
             </CAlert>
             <CForm>
                 <CRow>
@@ -92,6 +96,8 @@
                 },
                 success: false, 
                 successMsg: '',
+                fail: false,
+                failMsg: '',
                 profiles: []
                 
             }
@@ -159,7 +165,14 @@
                     this.v$.form.password_confirmation.$touch()
                 } 
             },
+            restoreInitialData() {
+                this.fail = false;
+                this.success = false; 
+                this.failMsg = ''; 
+                this.successMsg = '';
+            },
             closeModal() {
+                this.restoreInitialData();
                 this.$emit('cerrar'); 
             },
 
@@ -203,27 +216,46 @@
             }, 
 
 
-            saveUser() {
+            async saveUser() {
                 this.setTouched('all'); 
                 if (!this.v$.$invalid) {
-                    axios.put(
-                        this.$store.state.backendUrl + '/users/' + this.form.id,
-                        this.form,
-                        {
-                            headers: {
-                                'Content-Type': 'application/json',
-                                Authorization: 'Bearer ' + this.$store.state.token,
+                    try {
+                        const response = await axios.put(
+                            this.$store.state.backendUrl + '/users/' + this.form.id,
+                            this.form,
+                            {
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    Authorization: 'Bearer ' + this.$store.state.token,
+                                }
+                            }
+                        )
+                        console.log(response); 
+                        this.successMsg = 'Usuario actualizado exitósamente.'; 
+                        this.success = true; 
+                        setTimeout(() => {
+                            this.closeModal(); 
+                        }, 2000);
+
+                    } catch (error) {
+                        if (error.response) {
+                            const errors = error.response.data.errors; 
+                            for (const key in errors) {
+                                if (errors.hasOwnProperty(key)) {
+                                    const errMsg = errors[key];
+                                    this.failMsg = this.failMsg.concat(errMsg, "\n");  
+                                    this.fail = true; 
+
+                                    setTimeout(() => {
+                                        this.restoreInitialData();
+                                    //    this.closeModal(); 
+                                    }, 2000);
+                                    
+                                }
                             }
                         }
-                    )
-                    .then((res) => {
-                        console.log(res); 
-                        this.successMsg = "Usuario actualizado exitósamente."; 
-                        this.success = true; 
-                    })
-                    .catch((error) =>  {
-                        console.log("Error en post: ", error); 
-                    })
+                    }
+                    
                 }    
                 
             }

@@ -48,7 +48,9 @@
                     name: '',
                 },
                 success: false,
-                successMsg: ''
+                fail: false,
+                successMsg: '',
+                failMsg: '',
                 
             }
         },
@@ -62,9 +64,15 @@
             }
         },
         methods: {
-            closeModal() {
-                this.$emit('cerrarAddModal'); 
+            restoreInitialData() {
+                this.fail = false;
                 this.success = false; 
+                this.failMsg = ''; 
+                this.successMsg = '';
+            },
+            closeModal() {
+                this.restoreInitialData(); 
+                this.$emit('cerrarAddModal'); 
                 this.form.name = '';
                 this.v$.$reset();
             },
@@ -80,27 +88,46 @@
                 {this.v$.form.name.$touch()}
             },
             
-            saveClient() {
+            async saveClient() {
                 this.setTouched('all');
                 if(!this.v$.$invalid) {
-                    axios.post(
-                        this.$store.state.backendUrl + '/clients',
-                        this.form,
-                        {
-                            headers: {
-                                'Content-Type': 'application/json',
-                                Authorization: 'Bearer ' + this.$store.state.token,
+                    try {
+                        const response = await axios.post(
+                            this.$store.state.backendUrl + '/clients',
+                            this.form,
+                            {
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    Authorization: 'Bearer ' + this.$store.state.token,
+                                }
+                            }
+                        )
+                        console.log(response); 
+                        this.successMsg = 'Cliente creado exitósamente.'; 
+                        this.success = true; 
+                        setTimeout(() => {
+                            this.closeModal(); 
+                        }, 2000);
+
+                    } catch (error) {
+                        if (error.response) {
+                            const errors = error.response.data.errors; 
+                            for (const key in errors) {
+                                if (errors.hasOwnProperty(key)) {
+                                    const errMsg = errors[key];
+                                    this.failMsg = this.failMsg.concat(errMsg, "\n");  
+                                    this.fail = true; 
+
+                                    setTimeout(() => {
+                                        this.restoreInitialData();
+                                    //    this.closeModal(); 
+                                    }, 2000);
+                                    
+                                }
                             }
                         }
-                    )
-                    .then((res) => {
-                        console.log(res);
-                        this.successMsg = "Cliente añadido exitósamente."; 
-                        this.success = true; 
-                    })
-                    .catch((error) =>  {
-                        console.log("Error en post: ", error); 
-                    })
+                    }
+                    
 
                 }
                     
