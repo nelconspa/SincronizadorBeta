@@ -2,7 +2,7 @@
     <div class="bg-body-tertiary min-vh-100 d-flex flex-row align-items-center">
     <CContainer>
         <CRow class="justify-content-center">
-            <CCol class="align-self-center col-6 h-100vh">
+            <CCol class="align-self-center col-xl-6 col-md-10 col-sm-11 col-xs-11 h-100vh">
                 <CCardGroup>
                 <CCard class="p-5">
                     <CCardBody>
