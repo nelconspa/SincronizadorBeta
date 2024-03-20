@@ -31,13 +31,13 @@
 </template>
 
 <script>
-import { computed } from 'vue'
-import { RouterLink } from 'vue-router'
-import { useStore } from 'vuex'
-import { AppSidebarNav } from './AppSidebarNav'
-import { logo } from '@/assets/brand/logo'
-import { sygnet } from '@/assets/brand/sygnet'
-import logoHidrosistemas from '@/assets/brand/hidrosistemas-logo.jpeg'
+import { computed } from 'vue';
+import { RouterLink } from 'vue-router';
+import { useStore } from 'vuex';
+import { AppSidebarNav } from './AppSidebarNav';
+import { logo } from '@/assets/brand/logo';
+import { sygnet } from '@/assets/brand/sygnet';
+import logoHidrosistemas from '@/assets/brand/hidrosistemas-logo.jpeg';
 
 export default {
   name: 'AppSidebar',

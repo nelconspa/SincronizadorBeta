@@ -156,7 +156,7 @@
                     this.v$.form.email.$touch()
                 }
 
-                if(theModel == 'passowrd' || theModel == 'all' )
+                if(theModel == 'password' || theModel == 'all' )
                 {
                     this.v$.form.password.$touch()
                 }

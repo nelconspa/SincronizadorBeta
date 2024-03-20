@@ -46,6 +46,7 @@
                             placeholder="Contraseña"
                             aria-describedby="Contraseña"
                             v-model="form.password"
+                            autocomplete="on"
                         />
                     </CCol>
                     <CCol class="col-6 mt-4">
@@ -54,6 +55,7 @@
                             placeholder="Repetir Contraseña"
                             aria-describedby="Repetir Contraseña"
                             v-model="form.password_confirmation"
+                            autocomplete="on"                        
                         />
                     </CCol>
                 </CRow>
@@ -94,9 +96,9 @@
                     password: '',
                     password_confirmation: ''
                 },
-                success: false, 
-                successMsg: '',
+                success: false,
                 fail: false,
+                successMsg: '',
                 failMsg: '',
                 profiles: []
                 
@@ -156,7 +158,7 @@
                     this.v$.form.email.$touch()
                 }
 
-                if(theModel == 'passowrd' || theModel == 'all' )
+                if(theModel == 'password' || theModel == 'all' )
                 {
                     this.v$.form.password.$touch()
                 }
@@ -239,7 +241,7 @@
 
                     } catch (error) {
                         if (error.response) {
-                            const errors = error.response.data.errors; 
+                            const errors = error.response.data.messages; 
                             for (const key in errors) {
                                 if (errors.hasOwnProperty(key)) {
                                     const errMsg = errors[key];
@@ -256,7 +258,7 @@
                         }
                     }
                     
-                }    
+                } 
                 
             }
         }
