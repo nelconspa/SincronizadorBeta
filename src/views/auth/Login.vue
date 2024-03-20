@@ -1,5 +1,5 @@
 <template>
-    <div class="bg-body-tertiary min-vh-100 d-flex flex-row align-items-center">
+    <div class="background-login min-vh-100 d-flex flex-row align-items-center">
     <CContainer>
         <CRow class="justify-content-center">
             <CCol class="align-self-center col-xl-6 col-md-10 col-sm-11 col-xs-11 h-100vh">
@@ -12,7 +12,7 @@
                         {{ errorMsg }}
                     </CAlert>
                     <CForm @submit="onSubmit">
-                        <h2 class="text-center">Sincronizador 2</h2>
+                        <CImage align="center" :src="logoHidrosistemas" rounded  width="90%"/>
                         <p class="text-body-secondary text-center">Inicio de sesión panel de administración</p>
                         <CInputGroup class="mb-3 ">
                         <CInputGroupText>
@@ -51,9 +51,9 @@
                         </CContainer>
                         
                         
-                        <CButton color="link" class="text-center pt-3">
+                        <!-- <CButton color="link" class="text-center pt-3">
                         ¿Olvidaste la contraseña?
-                        </CButton>
+                        </CButton> -->
     
                     </CForm>
                     </CCardBody>
@@ -73,12 +73,13 @@ import axios, { AxiosError } from "axios";
 import useVuelidate from '@vuelidate/core'
 import { required, email } from '@vuelidate/validators'
 import SubmitButton from '@/components/SubmitButton.vue'
+import logoHidrosistemas from '@/assets/brand/hidrosistemas-logo.jpeg';
 
 export default {
     
     name: 'Login',
     setup() {
-        return { v$: useVuelidate() }
+        return { v$: useVuelidate(), logoHidrosistemas }
     },
     components:{ SubmitButton },
     data() {
@@ -176,3 +177,9 @@ export default {
     },
 }
 </script>
+
+<style>
+    .background-login {
+        background-color: #595959;  
+    }
+</style>
