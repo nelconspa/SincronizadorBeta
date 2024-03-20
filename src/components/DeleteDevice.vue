@@ -61,6 +61,9 @@
             deleteDevice() {
                 if (this.device.enabled) {
                     this.fail = true; 
+                    setTimeout(() => {
+                            this.closeModal(); 
+                    }, 2000);
                 } 
 
                 if (!this.fail) {
@@ -76,6 +79,9 @@
                     .then((response) => {
                             console.log(response); 
                             this.success = true; 
+                            setTimeout(() => {
+                                this.closeModal(); 
+                            }, 2000);
                     })
                     .catch((error) => {
                             console.log("Error: ", error);

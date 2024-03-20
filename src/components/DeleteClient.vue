@@ -64,7 +64,10 @@
                 this.devices.forEach(device => {
                     if (device.client_id === this.client.id) {
                         console.log(device.client_id)
-                        this.fail = true; 
+                        this.fail = true;
+                        setTimeout(() => {
+                            this.closeModal(); 
+                        }, 2000);
                     }
                 })
 
@@ -80,7 +83,10 @@
 
                     .then((response) => {
                             console.log(response); 
-                            this.success = true; 
+                            this.success = true;
+                            setTimeout(() => {
+                                this.closeModal(); 
+                        }, 2000);
                     })
                     .catch((error) => {
                             console.log("Error: ", error);

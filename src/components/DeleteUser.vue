@@ -80,6 +80,9 @@
             async deleteUser() {
                if (this.user.id === this.profile.id) {
                     this.fail = true; 
+                    setTimeout(() => {
+                            this.closeModal(); 
+                    }, 2000);
                 
                 } else {
                     axios.delete(
@@ -94,6 +97,9 @@
                     .then((response) => {
                             console.log(response); 
                             this.success = true; 
+                            setTimeout(() => {
+                            this.closeModal(); 
+                        }, 2000);
                     })
                     .catch((error) => {
                             console.log("Error: ", error);
