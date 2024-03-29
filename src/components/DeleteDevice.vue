@@ -1,5 +1,13 @@
 <template>
     <CModal :visible="showDeleteModal" @close="closeModal">
+        <CAlert color="danger"
+                :visible="fail">
+                Para eliminar este dispositivo no debe estar habilitado. 
+            </CAlert>
+            <CAlert color="success"
+                :visible="success">
+                Dispositivo eliminado exitósamente. 
+            </CAlert>
         <CModalHeader>
             <CModalTitle>
                 <slot name="modalTitle"></slot>
@@ -12,14 +20,7 @@
             </slot>
         </CModalBody>
         <CModalFooter>
-            <CAlert color="danger"
-                :visible="fail">
-                Para eliminar este dispositivo no debe estar habilitado. 
-            </CAlert>
-            <CAlert color="success"
-                :visible="success">
-                Dispositivo eliminado exitósamente. 
-            </CAlert>
+            
 
             <CButton 
                 @click="deleteDevice"
@@ -65,10 +66,11 @@
                             this.closeModal(); 
                     }, 2000);
                 } 
-
+                console.log("dispo: ",this.device);
                 if (!this.fail) {
+                    
                     axios.delete(
-                        this.$store.state.backendUrl+'/devices/' + this.devices.id,
+                        this.$store.state.backendUrl+'/devices/' + this.device.id,
                         {
                             headers: {
                                 "Content-Type": "application/json",

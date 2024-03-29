@@ -1,10 +1,6 @@
 <template>
     <CModal :visible="showModal" @click.native="closeModalOutside">
-        <CModalHeader>
-            <CModalTitle>Editar configuración de servidores</CModalTitle>
-        </CModalHeader>
-        <CModalBody>
-            <CAlert color="success"
+        <CAlert color="success"
                 :visible="success">
                 {{ successMsg }}
             </CAlert>
@@ -12,6 +8,11 @@
                 :visible="fail">
                 {{ failMsg }}
             </CAlert>
+        <CModalHeader>
+            <CModalTitle>Editar configuración de servidores</CModalTitle>
+        </CModalHeader>
+        <CModalBody>
+            
             <CForm>
                 <CRow>
                     <CCol class="col-12 mt-4">
@@ -144,7 +145,6 @@
                 form: {
                     id: '',
                     client_id: '',
-                    name: '',
                     zeusHost: '',
                     zeusPort: '',
                     zeusUsername: '',
@@ -166,9 +166,6 @@
             return {
                 form: {
                     client_id:{
-                        required
-                    },
-                    name: {
                         required
                     },
                     zeusHost: {
@@ -221,9 +218,7 @@
 
         methods: {
             setTouched(theModel) { 
-                if(theModel == 'name' || theModel == 'all' )
-                {this.v$.form.name.$touch()}
-
+                
                 if(theModel == 'zeusHost' || theModel == 'all'){
                     this.v$.form.zeusHost.$touch()
                 } 
@@ -264,6 +259,7 @@
             },
             async saveConfig() {
                 this.setTouched('all');
+                console.log(this.form);
                 if (!this.v$.$invalid) {
                     try {
                         const response = await axios.put(

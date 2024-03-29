@@ -8,6 +8,10 @@
                 :visible="success">
                 {{ successMsg }}
             </CAlert>
+            <CAlert color="danger"
+                :visible="fail">
+                {{ failMsg }}
+            </CAlert>
             <CForm>
                 <CRow>
                     <CCol class="col-12">
@@ -303,7 +307,7 @@
             closeModal() {
                 this.restoreInitialData();
                 this.$emit('cerrar'); 
-                this.success = false;
+                
             },
 
             closeModalOutside(event) {
@@ -430,11 +434,11 @@
             }, 
 
 
-            saveDevice() {
+            async saveDevice() {
                 this.setTouched('all');
                 if(!this.v$.$invalid) {
                     try {
-                        const response = axios.put(
+                        const response = await axios.put(
                             this.$store.state.backendUrl + '/devices/' + this.form.id,
                             this.form,
                             {
@@ -452,23 +456,24 @@
                         }, 2000);
 
                     } catch (error) {
+                        console.log("Error: ",error.response.data.messages);
                         if (error.response) {
-                            const errors = error.response.data.errors; 
+                            const errors = error.response.data.messages; 
                             for (const key in errors) {
-                                if (errors.hasOwnProperty(key)) {
-                                    const errMsg = errors[key];
-                                    this.failMsg = this.failMsg.concat(errMsg, "\n");  
-                                    this.fail = true; 
+                                const errMsg = errors[key];
+                                this.failMsg = this.failMsg.concat(errMsg, "\n");  
+                                this.fail = true; 
+                                console.log(this.failMsg);
 
-                                    setTimeout(() => {
-                                        this.restoreInitialData();
+                                setTimeout(() => {
+                                    this.restoreInitialData();
                                     //    this.closeModal(); 
-                                    }, 2000);
+                                }, 2000);
                                     
-                                }
                             }
                         }
                     }
+                
                     
                     
                 }
