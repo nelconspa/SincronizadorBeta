@@ -1,5 +1,5 @@
 <template>
-    <CModal :visible="showModal" @click.native="closeModalOutside">
+    <CModal :visible="showModal" @close="closeModal">
         <CModalHeader>
             <CModalTitle>Editar configuración de servidores</CModalTitle>
         </CModalHeader>
