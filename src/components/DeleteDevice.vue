@@ -67,8 +67,9 @@
                 } 
 
                 if (!this.fail) {
+                    console.log("devices: ", this.devices);
                     axios.delete(
-                        this.$store.state.backendUrl+'/devices/' + this.devices.id,
+                        this.$store.state.backendUrl+'/devices/' + this.device.id,
                         {
                             headers: {
                                 "Content-Type": "application/json",

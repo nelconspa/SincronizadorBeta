@@ -135,12 +135,12 @@
                 let filterTasks = this.failTasks;   
                 if (this.clientsFilter.length > 0) {
                     filterTasks = filterTasks.filter(task => 
-                        this.clientsFilter.includes(task.last_error.client_id) 
+                        (task.client && this.clientsFilter.includes(task.last_error.client_id))
                     );
                 }
                 if (this.devicesFilter.length > 0 && this.devicesFilter.length < this.totalDevices.length) {
                     filterTasks = filterTasks.filter(task => 
-                        this.devicesFilter.includes(task.last_error.device_id)
+                        (task.device && this.devicesFilter.includes(task.last_error.device_id))
                     )
                     
                 }
