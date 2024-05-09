@@ -110,6 +110,7 @@
                 searchFilter: '',
                 enabledFilter: false,
                 clientsFilter: [],
+                selectedDevices: [],
                 devicesFilter: [],
                 totalDevices: []
             }
@@ -123,12 +124,12 @@
                     filterTasks = filterTasks.filter(task => 
                         this.clientsFilter.includes(task.client_id)
                     );
-                    console.log("Filter tasks dentro de if: ", filterTasks);
+                    
                 }
                 
                 if (this.devicesFilter.length > 0 && this.devicesFilter.length < this.totalDevices.length) {
                     filterTasks = filterTasks.filter(task => 
-                        this.devicesFilter.includes(task.next_task.device_id)
+                        (task.next_task && this.devicesFilter.includes(task.next_task.device_id))
                     )
                 }
                 
@@ -171,9 +172,14 @@
                 
             }, 
             handleDevices(options) {
-                this.devicesFilter = options; 
-                console.log(options); 
+                /* this.devicesFilter = options; 
+                console.log(options); */ 
                 //this.getDevicesByClients(); 
+                console.log(options); 
+                if (!this.selectedDevices.includes(options)) {
+                    this.selectedDevices.push(options);
+                }
+                console.log("DEVICES: ", this.selectedDevices);
             }, 
 
             async getStatusTasks() {
@@ -211,7 +217,9 @@
                         devices = response.data;
                     }
                     this.totalDevices = devices;
-                    this.devicesFilter = devices; 
+                    if (this.selectedDevices.length === 0) {
+                        this.devicesFilter = devices;
+                    } 
                 } catch (error) {
                     console.error('Error en la solicitud a la API:', error);
                     this.ShowError = true;

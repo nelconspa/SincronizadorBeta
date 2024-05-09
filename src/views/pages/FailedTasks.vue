@@ -135,12 +135,12 @@
                 let filterTasks = this.failTasks;   
                 if (this.clientsFilter.length > 0) {
                     filterTasks = filterTasks.filter(task => 
-                        (task.client && this.clientsFilter.includes(task.last_error.client_id))
+                        (task.client && task.last_error && this.clientsFilter.includes(task.last_error.client_id))
                     );
                 }
                 if (this.devicesFilter.length > 0 && this.devicesFilter.length < this.totalDevices.length) {
                     filterTasks = filterTasks.filter(task => 
-                        (task.device && this.devicesFilter.includes(task.last_error.device_id))
+                        (task.device && task.last_error && this.devicesFilter.includes(task.last_error.device_id))
                     )
                     
                 }
@@ -165,7 +165,6 @@
                 this.totalPages = Math.ceil(this.filteredTasks.length / this.perPage);
             }
         },
-
         mounted() {
             this.getFailedTasks(); 
         },
@@ -177,6 +176,7 @@
 
             handleClients(options) {
                 this.clientsFilter = options; 
+                console.log('clients en handle: ',this.clientsFilter); 
                 this.getDevicesByClients(); 
                 
             }, 
@@ -188,6 +188,7 @@
                 if (!this.selectedDevices.includes(options)) {
                     this.selectedDevices.push(options);
                 }
+                
                 console.log("DEVICES: ", this.selectedDevices);
             }, 
 
@@ -235,6 +236,7 @@
                     }
                     this.totalDevices = devices; 
                     //this.devicesFilter = devices;
+                    console.log("total Devices: ", this.totalDevices); 
                     console.log("DISPOSITIVOS EN GETDEVICES: ", this.selectedDevices); 
                     if (this.selectedDevices.length === 0) {
                         this.devicesFilter = devices;
