@@ -176,7 +176,6 @@
 
             handleClients(options) {
                 this.clientsFilter = options; 
-                console.log('clients en handle: ',this.clientsFilter); 
                 this.getDevicesByClients(); 
                 
             }, 
