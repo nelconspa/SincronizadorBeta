@@ -8,7 +8,10 @@
                 :visible="success">
                 {{ successMsg }}
             </CAlert>
-
+            <CAlert color="danger"
+                :visible="fail">
+                {{ failMsg }}
+            </CAlert>
             
             <CForm class="mt-3">
 

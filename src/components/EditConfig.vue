@@ -1,6 +1,15 @@
 <template>
+<<<<<<< HEAD
     <CModal :visible="showModal" @click.native="closeModalOutside">
         <CAlert color="success"
+=======
+    <CModal :visible="showModal" @close="closeModal">
+        <CModalHeader>
+            <CModalTitle>Editar configuración de servidores</CModalTitle>
+        </CModalHeader>
+        <CModalBody>
+            <CAlert color="success"
+>>>>>>> 5783510086926f4ddf486f8faa3931b102d4ca14
                 :visible="success">
                 {{ successMsg }}
             </CAlert>

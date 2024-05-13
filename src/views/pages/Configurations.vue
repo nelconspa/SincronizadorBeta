@@ -190,11 +190,12 @@
                             }
                         }
                     );
+                    console.log(response.data); 
                     this.configs = response.data.map(config => ({
                         ...config,
                         clientName: config.client.name
                     }));
-                    
+                  
 
                 } catch (error) {
                     console.error('Error en la solicitud a la API:', error);

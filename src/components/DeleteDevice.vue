@@ -68,7 +68,11 @@
                 } 
                 console.log("dispo: ",this.device);
                 if (!this.fail) {
+<<<<<<< HEAD
                     
+=======
+                    console.log("devices: ", this.devices);
+>>>>>>> 5783510086926f4ddf486f8faa3931b102d4ca14
                     axios.delete(
                         this.$store.state.backendUrl+'/devices/' + this.device.id,
                         {

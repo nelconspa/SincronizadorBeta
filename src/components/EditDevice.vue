@@ -1,5 +1,5 @@
 <template>
-    <CModal size="lg" :visible="showModal" @click.native="closeModalOutside">
+    <CModal size="lg" :visible="showModal" @close="closeModal">
         <CModalHeader>
             <CModalTitle>Editar dispositivo</CModalTitle>
         </CModalHeader>
