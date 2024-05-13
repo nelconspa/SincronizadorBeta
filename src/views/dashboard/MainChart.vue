@@ -14,13 +14,16 @@ export default {
   components: {
     CChart,
   },
+ 
   setup() {
+    //const props = defineProps(['xValues', 'yValues'])
     const mainChartRef = ref()
     const data = {
-      labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
+      labels: Array.from({length:31}, (_, i) => (i+1).toString()),
+      //labels: ['', 'February', 'March', 'April', 'May', 'June', 'July'],
       datasets: [
         {
-          label: 'My First dataset',
+          label: 'Registros según fecha',
           backgroundColor: `rgba(${getStyle('--cui-info-rgb')}, .1)`,
           borderColor: getStyle('--cui-info'),
           pointHoverBackgroundColor: getStyle('--cui-info'),
@@ -28,39 +31,16 @@ export default {
           data: [
             random(50, 200),
             random(50, 200),
+            /* random(50, 200),
             random(50, 200),
             random(50, 200),
             random(50, 200),
-            random(50, 200),
-            random(50, 200),
+            random(50, 200), */
           ],
           fill: true,
         },
-        {
-          label: 'My Second dataset',
-          backgroundColor: 'transparent',
-          borderColor: getStyle('--cui-success'),
-          pointHoverBackgroundColor: getStyle('--cui-success'),
-          borderWidth: 2,
-          data: [
-            random(50, 200),
-            random(50, 200),
-            random(50, 200),
-            random(50, 200),
-            random(50, 200),
-            random(50, 200),
-            random(50, 200),
-          ],
-        },
-        {
-          label: 'My Third dataset',
-          backgroundColor: 'transparent',
-          borderColor: getStyle('--cui-danger'),
-          pointHoverBackgroundColor: getStyle('--cui-danger'),
-          borderWidth: 1,
-          borderDash: [8, 5],
-          data: [65, 65, 65, 65, 65, 65, 65],
-        },
+       
+        
       ],
     }
 

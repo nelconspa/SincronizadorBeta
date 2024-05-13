@@ -14,23 +14,39 @@
                 <CRow>
                   <CCol>
                     <v-select
+                      v-model="year"
                       :options="years"
+                      :reduce="year => year.name"
+                      label="name"
                       placeholder="Seleccionar año"
                     ></v-select>
                   </CCol>
                   <CCol>
                     <v-select
+                      v-model="month"
                       :options="months"
+                      :reduce="month => month.id"
+                      label="name"
                       placeholder="Seleccionar mes"
                     ></v-select>
                   </CCol>
                   <CCol>
                     <v-select
+                      v-model="device_id"
                       placeholder="Seleccionar dispositivo"
                       :options="devices"
                       :reduce="device => device.id"
                       label="zeusName"
                     ></v-select>                    
+                  </CCol>
+                  <CCol>
+                    <CButton
+                      color="success"
+                      class="text-white"
+                      @click="getTasksByDate"
+                    >
+                      Graficar
+                    </CButton>                     
                   </CCol>
                 </CRow>
                 
@@ -53,10 +69,13 @@
               </CCol>
             </CRow>
             <CRow>
-              <MainChart style="height: 300px; max-height: 300px; margin-top: 40px" />
+              <MainChart 
+                style="height: 300px; max-height: 300px; margin-top: 40px"
+                 
+              />
             </CRow>
           </CCardBody>
-          <CCardFooter>
+          <!-- <CCardFooter>
             <CRow
               :xs="{ cols: 1, gutter: 4 }"
               :sm="{ cols: 2 }"
@@ -90,7 +109,7 @@
                 <CProgress class="mt-2" :value="40" thin :precision="1" />
               </CCol>
             </CRow>
-          </CCardFooter>
+          </CCardFooter> -->
         </CCard>
       </CCol>
     </CRow>
@@ -121,27 +140,60 @@ export default {
   },
   setup() {
     const store = useStore(); 
-    const devices = ref(); 
-    const years = ['2022','2023','2024']
-    const months = [
-      'Enero',
-      'Febrero',
-      'Marzo',
-      'Abril',
-      'Mayo',
-      'Junio',
-      'Julio',
-      'Agosto',
-      'Septiembre',
-      'Octubre',
-      'Noviembre',
-      'Diciembre'
+    const devices = ref();
+    const tasks = ref(); 
+    const year = ref(); 
+    const month = ref(); 
+    const device_id = ref();  
+    const years = [
+      { id: 1, name: '2022' },
+      { id: 2, name: '2023' },
+      { id: 3, name: '2024' }
     ];
 
+    const months = [
+      { id: 1, name: 'Enero' },
+      { id: 2, name: 'Febrero' },
+      { id: 3, name: 'Marzo' },
+      { id: 4, name: 'Abril' },
+      { id: 5, name: 'Mayo' },
+      { id: 6, name: 'Junio' },
+      { id: 7, name: 'Julio' },
+      { id: 8, name: 'Agosto' },
+      { id: 9, name: 'Septiembre' },
+      { id: 10, name: 'Octubre' },
+      { id: 11, name: 'Noviembre' },
+      { id: 12, name: 'Diciembre' }
+    ];
+
+
     onMounted(() => {
-      getDevices(); 
+      getDevices();
     })
-    
+    async function getTasksByDate() {
+      try {
+            const response = await axios.get(
+              store.state.backendUrl + '/tasks',
+              {
+                params: {
+                  device_id: device_id.value,
+                  month: month.value,
+                  year: year.value 
+                },  
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: 'Bearer ' + store.state.token,
+                }
+              }
+            );
+                    
+            tasks.value = response.data;
+            console.log(tasks.value);
+            
+            } catch (error) {
+                console.error('Error en la solicitud a la API:', error);         
+            } 
+    }
     async function getDevices() {
         try {
             const response = await axios.get(
@@ -169,7 +221,12 @@ export default {
     return {
       months,
       years,
-      devices
+      devices,
+      tasks,
+      device_id,
+      month,
+      year,
+      getTasksByDate
       
     }
   },

@@ -1,33 +1,56 @@
 <template>
-  <CRow :xs="{ gutter: 4 }">
-    <CCol :sm="6" :xl="4" :xxl="3">
-      <CWidgetStatsA color="primary">
-        <template #value>{{ activeDevices }}
-          <span class="fs-6 fw-normal">
-            
-          </span>
-        </template>
-        <template #title>Dispositivos Activos</template>
-        
-        
-      </CWidgetStatsA>
-    </CCol>
-    
-    
-    <CCol :sm="6" :xl="4" :xxl="3">
-      <CWidgetStatsA color="danger">
-        <template #value
-          >{{ inactiveDevices }}
-          <span class="fs-6 fw-normal">
-            
-          </span>
-        </template>
-        <template #title>Dispositivos Inactivos</template>
-        
-        
-      </CWidgetStatsA>
-    </CCol>
-  </CRow>
+  
+  <div class="container">
+    <CRow :xs="{ gutter: 4 }" class="justify-content-center mb-5">
+      <CCol :sm="6" :xl="4" :xxl="3">
+        <CWidgetStatsA color="success">
+          <template #value>{{ activeDevices }}
+            <span class="fs-6 fw-normal">
+              
+            </span>
+          </template>
+          <template #title>Dispositivos Activos</template>
+          
+          
+        </CWidgetStatsA>
+      </CCol>
+      
+      
+      <CCol :sm="6" :xl="4" :xxl="3">
+        <CWidgetStatsA color="danger">
+          <template #value
+            >{{ inactiveDevices }}
+            <span class="fs-6 fw-normal">
+              
+            </span>
+          </template>
+          <template #title>Dispositivos Inactivos</template>
+          
+          
+        </CWidgetStatsA>
+      </CCol>
+    </CRow>
+    <div class="row justify-content-center"> <!-- Centra el contenido horizontalmente -->
+      <div class="col-md-6"> <!-- Define el tamaño del contenedor -->
+        <div class="embed-responsive embed-responsive-1by1"> <!-- Clase de utilidad para mantener la relación de aspecto -->
+          <CChart
+            type="pie"
+            :data="{
+              labels: ['Dispositivos Activos', 'Dispositivos Inactivos'],
+              datasets: [
+                {
+                  backgroundColor: ['#2EB85C', '#E55353'],
+                  data: [`${activeDevices}`, `${inactiveDevices}`],
+                },
+              ],
+            }"
+          />
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  
 </template>
 
 <script>
