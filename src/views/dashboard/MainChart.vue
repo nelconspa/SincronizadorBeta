@@ -3,7 +3,7 @@
 </template>
 
 <script>
-import { onMounted, ref } from 'vue'
+import { onMounted, ref, defineProps, watch } from 'vue'
 import { CChart } from '@coreui/vue-chartjs'
 import { getStyle } from '@coreui/utils'
 
@@ -14,35 +14,137 @@ export default {
   components: {
     CChart,
   },
- 
-  setup() {
-    //const props = defineProps(['xValues', 'yValues'])
-    const mainChartRef = ref()
-    const data = {
-      labels: Array.from({length:31}, (_, i) => (i+1).toString()),
-      //labels: ['', 'February', 'March', 'April', 'May', 'June', 'July'],
-      datasets: [
-        {
-          label: 'Registros según fecha',
-          backgroundColor: `rgba(${getStyle('--cui-info-rgb')}, .1)`,
-          borderColor: getStyle('--cui-info'),
-          pointHoverBackgroundColor: getStyle('--cui-info'),
-          borderWidth: 2,
-          data: [
-            random(50, 200),
-            random(50, 200),
-            /* random(50, 200),
-            random(50, 200),
-            random(50, 200),
-            random(50, 200),
-            random(50, 200), */
-          ],
-          fill: true,
-        },
-       
-        
-      ],
+  props: {
+    tasks: {
+      type: Array,
+      default: () => []
     }
+  },
+ 
+  setup(props) {
+    
+    const tasks = ref(props.tasks);
+    let data = ref({});
+    
+    const updateData = () => {
+        if (tasks.value.length > 0) {
+          console.log("en tasks enviadas desde prop");
+          data.value = {
+            labels: Array.from({length:31}, (_, i) => (i+1).toString()),
+            datasets: [
+              {
+                label: 'Registros según fecha',
+                backgroundColor: `rgba(${getStyle('--cui-info-rgb')}, .1)`,
+                borderColor: getStyle('--cui-info'),
+                pointHoverBackgroundColor: getStyle('--cui-info'),
+                borderWidth: 2,
+                data: tasks.value.map(task => {
+                  return task.Registros; 
+                }),
+                fill: true,
+              },
+            ],
+          }
+        }
+
+        /* } else {
+          data.value = {
+            labels: Array.from({length:31}, (_, i) => (i+1).toString()),
+            datasets: [
+              {
+                label: 'Registros según fecha',
+                backgroundColor: `rgba(${getStyle('--cui-info-rgb')}, .1)`,
+                borderColor: getStyle('--cui-info'),
+                pointHoverBackgroundColor: getStyle('--cui-info'),
+                borderWidth: 2,
+                data: Array.from({length:31}, (_, i) => random(1, 25)),
+                fill: true,
+              },
+            ]
+          }
+        } */
+    }; 
+
+    watch(() => props.tasks, (newValue, oldValue) => {
+      tasks.value = newValue; 
+      console.log('Tasks actualizadas:', tasks.value);
+      updateData();
+    }); 
+
+    /* console.log('Valor taskprop: ', tasksProp.value);  */
+
+    const mainChartRef = ref();
+
+
+    /* if (tasks.value.length > 0) {
+      console.log("en tasks enviadas desde prop");
+      data = {
+        labels: Array.from({length:31}, (_, i) => (i+1).toString()),
+        //labels: ['', 'February', 'March', 'April', 'May', 'June', 'July'],
+        
+        datasets: [
+          {
+            label: 'Registros según fecha',
+            backgroundColor: `rgba(${getStyle('--cui-info-rgb')}, .1)`,
+            borderColor: getStyle('--cui-info'),
+            pointHoverBackgroundColor: getStyle('--cui-info'),
+            borderWidth: 2,
+            data: tasks.value.map(task => {
+              return task.Registros; 
+            }),
+            fill: true,
+          },
+        
+          
+        ],
+      }
+    } else {
+      data = { 
+        labels: Array.from({length:31}, (_, i) => (i+1).toString()),
+        //labels: ['', 'February', 'March', 'April', 'May', 'June', 'July'],
+        
+        datasets: [
+          {
+            label: 'Registros según fecha',
+            backgroundColor: `rgba(${getStyle('--cui-info-rgb')}, .1)`,
+            borderColor: getStyle('--cui-info'),
+            pointHoverBackgroundColor: getStyle('--cui-info'),
+            borderWidth: 2,
+            data: [
+              random(1,25),
+              random(1,25),
+              random(1,25),
+              random(1,25),
+              random(1,25),
+              random(1,25),
+              random(1,25),
+              random(1,25),
+              random(1,25),
+              random(1,25),
+              random(1,25),
+              random(1,25),
+              random(1,25),
+              random(1,25),
+              random(1,25),
+              random(1,25),
+              random(1,25),
+              random(1,25),
+              random(1,25),
+              random(1,25),
+              random(1,25),
+              random(1,25),
+              random(1,25),
+              random(1,25),
+              random(1,25),
+              random(1,25),
+
+            ],
+            fill: true,
+          },
+        ]
+      } */
+  
+    
 
     const options = {
       maintainAspectRatio: false,
@@ -69,7 +171,7 @@ export default {
           grid: {
             color: getStyle('--cui-border-color-translucent'),
           },
-          max: 250,
+          max: 24,
           ticks: {
             color: getStyle('--cui-body-color'),
             maxTicksLimit: 5,
@@ -122,6 +224,7 @@ export default {
       data,
       mainChartRef,
       options,
+      tasks
     }
   },
 }

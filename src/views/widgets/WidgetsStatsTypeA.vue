@@ -31,7 +31,7 @@
       </CCol>
     </CRow>
     <div class="row justify-content-center"> <!-- Centra el contenido horizontalmente -->
-      <div class="col-md-6"> <!-- Define el tamaño del contenedor -->
+      <div class="col-md-5"> <!-- Define el tamaño del contenedor -->
         <div class="embed-responsive embed-responsive-1by1"> <!-- Clase de utilidad para mantener la relación de aspecto -->
           <CChart
             type="pie"

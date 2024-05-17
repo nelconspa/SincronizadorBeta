@@ -9,8 +9,8 @@
                 {{ successMsg }}
             </CAlert>
             <CAlert color="danger"
-                :visible="fail">
-                {{ failMsg }}
+                :visible="fail"
+                v-html="failMsg">
             </CAlert>
             <CForm>
                 <CRow>
@@ -34,6 +34,7 @@
                             @input="setTouched('client_id')"
                             feedback="Rellene este campo por favor."
                             :invalid="v$.form.client_id.$error"
+                            searchable
 
 
                         >
@@ -390,7 +391,28 @@
             },
 
             async saveDevice() {
+                let errorMsgs = []
                 this.setTouched('all');
+
+                if(!this.form.client_id) {
+                    errorMsgs.push("- Por favor ingrese un cliente." );
+                }
+                if(!this.form.client_config_id) {
+                    errorMsgs.push("- Por favor ingrese una configuración.");
+                }
+                if(!this.form.schedule_id) {
+                    errorMsgs.push("- Por favor ingrese una periodicidad.");
+                }
+                if(errorMsgs.length) {
+                    this.failMsg = "Por favor corrija los siguientes errores:<br><br>" + errorMsgs.join("<br>"); 
+                    this.fail = true;
+                    setTimeout(() => {
+                        this.restoreInitialData();
+                        //    this.closeModal(); 
+                    }, 2500);
+                    return;
+                }
+                
                 if(!this.v$.$invalid) {
                     try {
                         const response = await axios.post(

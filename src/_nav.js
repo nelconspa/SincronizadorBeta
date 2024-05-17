@@ -1,7 +1,7 @@
 export default [
   {
     component: 'CNavItem',
-    name: 'Dashboard',
+    name: 'Inicio',
     to: '/dashboard',
     icon: 'pen-to-square',
     badge: {

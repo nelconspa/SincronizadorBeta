@@ -25,7 +25,17 @@
                             @input="setTouched('client_id')"
                             feedback="Rellene este campo por favor."
                             :invalid="v$.form.client_id.$error"
-                        />
+                            searchable
+                        >
+                        <!-- <template #search="{attributes, events}">
+                            <input
+                            class="vs__search"
+                            :required="!form.client_id"
+                            v-bind="attributes"
+                            v-on="events"
+                            />
+                        </template> -->
+                        </v-select>
                        
                         
                     </CCol>
@@ -314,7 +324,15 @@
 
             async saveConfig() {
                 this.setTouched('all');
+                if(!this.form.client_id) {
+                    this.failMsg = "Porfavor ingrese un cliente."  
+                    this.fail = true; 
 
+                    setTimeout(() => {
+                        this.restoreInitialData();
+                        //    this.closeModal(); 
+                    }, 2000);
+                }
                 if (!this.v$.$invalid) {
                     try {
                         const response = await axios.post(

@@ -18,7 +18,7 @@
                       :options="years"
                       :reduce="year => year.name"
                       label="name"
-                      placeholder="Seleccionar año"
+                      placeholder="Año"
                     ></v-select>
                   </CCol>
                   <CCol>
@@ -27,13 +27,13 @@
                       :options="months"
                       :reduce="month => month.id"
                       label="name"
-                      placeholder="Seleccionar mes"
+                      placeholder="Mes"
                     ></v-select>
                   </CCol>
                   <CCol>
                     <v-select
                       v-model="device_id"
-                      placeholder="Seleccionar dispositivo"
+                      placeholder="Dispositivo"
                       :options="devices"
                       :reduce="device => device.id"
                       label="zeusName"
@@ -71,7 +71,7 @@
             <CRow>
               <MainChart 
                 style="height: 300px; max-height: 300px; margin-top: 40px"
-                 
+                :tasks="tasks"
               />
             </CRow>
           </CCardBody>
