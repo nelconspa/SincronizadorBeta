@@ -8,7 +8,7 @@
         </CCol>
         <CCol>
             <DeviceFilter 
-                :devices="devicesFilter"
+                :allDevices="devicesFilter"
                 @filter="handleDevices"
                 
             />
@@ -63,6 +63,8 @@
                 date: '',
                 clientsFilter: [],
                 devicesFilter: [],
+                selectedDevices: [],
+                totalDevices: [],
                 hours: ['00:00','01:00','02:00','03:00','04:00',
                         '05:00','06:00','07:00','08:00',
                         '09:00','10:00','11:00','12:00','13:00',
@@ -83,10 +85,17 @@
                 
             }, 
             handleDevices(options) {
-                this.devicesFilter = options;
+                /* this.devicesFilter = options;
                 console.log("HANDLE DEVICES: ",this.devicesFilter); 
                 this.isSelected = true;
-                this.getDevicesByClients();
+                this.getDevicesByClients(); */
+                console.log('options: ',options)
+                if (!this.selectedDevices.includes(options)) {
+                    this.selectedDevices.push(options);
+                }
+                console.log('selectedDEVICES:',this.selectedDevices); 
+                this.isSelected = true; 
+                
             }, 
 
             async getClients() {
@@ -130,10 +139,20 @@
                                 },
                             }
                         )
-                        devices = devices.concat(response.data); 
+                        devices = devices.concat(response.data.map(config => ({
+                            ...config,
+                            host: config.client_config.zeusHost
+                        }))); 
+                    }
+                    this.totalDevices = devices; 
+                    //this.devicesFilter = devices;
+                    console.log("total Devices: ", this.totalDevices); 
+                    console.log("DISPOSITIVOS EN GETDEVICES: ", this.selectedDevices); 
+                    if (this.selectedDevices.length === 0) {
+                        this.devicesFilter = devices;
                     }
 
-                    this.devicesFilter = devices; 
+                    
                 } catch (error) {
                     
                     console.error('Error en la solicitud a la API:', error);
