@@ -175,8 +175,7 @@
                         }
                     );
                     
-                    this.clients = response.data;
-                    console.log("Clientes: ",this.clients)
+                    this.tasks = response.data;
                 } catch (error) {
                     console.error('Error en la solicitud a la API:', error);
                     this.ShowError = true;
