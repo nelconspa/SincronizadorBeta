@@ -1,4 +1,5 @@
 import { createStore } from 'vuex'
+import createPersistedState from 'vuex-persistedstate';
 
 export default createStore({
 	state: {
@@ -7,7 +8,7 @@ export default createStore({
 		theme: 'light',
 		token: '',
 		name: '',
-		backendUrl: 'https://back-new.sincronizador.cl/api', // agregar archivo .env para estos datos
+		backendUrl: 'https://back1.sincronizador.cl/api', // agregar archivo .env para estos datos
 	},
 	mutations: {
 		/*
@@ -58,4 +59,8 @@ export default createStore({
 	},
 	actions: {},
 	modules: {},
+	plugins: [createPersistedState({
+		// Opciones de configuración del plugin
+		storage: window.localStorage, // Puedes cambiar esto a sessionStorage si prefieres
+	  })]
 })

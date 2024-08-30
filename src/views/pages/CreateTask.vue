@@ -105,12 +105,18 @@
         methods: {
             handleHourChange(hour) {
                 if (hour === 'Seleccionar todo') {
-                    Object.keys(this.selectedHours).forEach(hour => {
-                        this.selectedHours[hour] = true;
-                        
-                    })
-                }
-                this.selectedHours[hour] = !this.selectedHours[hour];
+                    const selectAll = !this.selectedHours[hour];
+                    Object.keys(this.selectedHours).forEach(hour => { 
+                        this.selectedHours[hour] = selectAll; 
+                    });
+                } else {
+                    this.selectedHours[hour] = !this.selectedHours[hour];
+                    
+                    // Si se deselecciona cualquier hora y "Seleccionar todo" está marcado, desmarcar "Seleccionar todo"
+                    if (!this.selectedHours[hour] && this.selectedHours['Seleccionar todo']) {
+                        this.selectedHours['Seleccionar todo'] = false;
+                    }
+                };
             },
             handleClients(options) {
                 this.clientsFilter = options; 
@@ -129,12 +135,56 @@
                 this.isSelected = true; 
                 
             }, 
-            createTask() {
+
+            convertFormatHour() {
+                //console.log("array de horas: ", this.selectedHours); 
+                let hoursObj = this.selectedHours; 
+                let hoursArray = []
+                for (const hour in hoursObj) {
+                    
+                    if (hoursObj[hour] && hour != 'Seleccionar todo') {
+                        let hourFormat = parseInt(hour.slice(0,2)); 
+                        hoursArray.push(hourFormat); 
+                    }  
+                }
+
+                return hoursArray; 
+            }, 
+
+            async createTask() {
                 let devicesLength = this.selectedDevices.length; 
-                console.log('PARAMS FINALES: \n'); 
-                console.log(this.selectedDevices[devicesLength - 1]); 
-                console.log(this.date); 
-                console.log(this.selectedHours);                 
+                const dateArray = [this.date.start, this.date.end]; 
+                let hours = this.convertFormatHour(); 
+
+                let params = {
+                    devices: this.selectedDevices[devicesLength - 1],
+                    dates: dateArray,
+                    hours: hours
+                } 
+
+                console.log(params); 
+                try {
+                    const response = await axios.post(
+                        this.$store.state.backendUrl + '/tasks-create',
+
+                        {
+                            headers: {
+                                'Content-Type': 'application/json',
+                                Authorization: 'Bearer ' + this.$store.state.token,
+                            }
+                        }
+                    );
+                    
+                    this.clients = response.data;
+                    console.log("Clientes: ",this.clients)
+                } catch (error) {
+                    console.error('Error en la solicitud a la API:', error);
+                    this.ShowError = true;
+                        
+                        // this.errorMsg = "Ha ocurrido un error: " + error;
+                }
+
+
             },
             async getClients() {
                 try {

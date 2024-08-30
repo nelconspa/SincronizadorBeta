@@ -26,8 +26,15 @@
             /> 
         </CCol>
     </CRow>
-
-    <CTable class="mt-4">
+    <template v-if="isLoading" >
+        <div class="d-flex flex-column align-items-center justify-content-center mt-5">
+            <h5 class="text-bold">Cargando datos...</h5>
+            <CSpinner color="dark"/>
+        </div>
+                
+    </template>
+    <template v-else>
+        <CTable class="mt-4">
         <CTableHead>
             <CTableRow color="dark">
                 <CTableHeaderCell scope="col">Dispositivo</CTableHeaderCell>
@@ -43,45 +50,55 @@
                 
             </CTableRow>
         </CTableHead>
-        <CTableBody>
-            <CTableRow v-for="(task, index) in filteredTasks" 
+        
+            
+            
+                <CTableBody>
+                <CTableRow v-for="(task, index) in filteredTasks" 
                 :key="index" 
                 :class="{'table-success': task.sync_status.status === 'ok', 
                         'table-danger': task.sync_status.status === 'error'}"
             >
-                <CTableDataCell>{{ task.zeusName }}</CTableDataCell>
-                <CTableDataCell>{{ task.zeusCode }}</CTableDataCell>
-                <CTableDataCell>{{ task.enabled }}</CTableDataCell>
+                    <CTableDataCell>{{ task.zeusName }}</CTableDataCell>
+                    <CTableDataCell>{{ task.zeusCode }}</CTableDataCell>
+                    <CTableDataCell>{{ task.enabled }}</CTableDataCell>
+                    
+                    <template v-if="task.last_task !== null">
+                        <CTableDataCell>{{ task.last_task.taskDate }}</CTableDataCell>
+                        <CTableDataCell>{{ task.last_task.caudal }}</CTableDataCell>
+                        <CTableDataCell>{{ task.last_task.nivelFreatico }}</CTableDataCell>
+                        <CTableDataCell>{{ task.last_task.totalizador }}</CTableDataCell>
+                    </template>
+    
+                    <template v-else>
+                        <CTableDataCell>&nbsp;</CTableDataCell>
+                        <CTableDataCell>&nbsp;</CTableDataCell>
+                        <CTableDataCell>&nbsp;</CTableDataCell>
+                        <CTableDataCell>&nbsp;</CTableDataCell>
+                    </template>
+    
+                    <template v-if="task.next_task !== null">
+                        <CTableDataCell>{{ task.next_task.taskDate }}</CTableDataCell>
+                    </template>
+    
+                    <template v-else>
+                        <CTableDataCell>&nbsp;</CTableDataCell>
+                    </template>
+                    
+                    <CTableDataCell>{{ task.sync_status.message }}</CTableDataCell>
                 
-                <template v-if="task.last_task !== null">
-                    <CTableDataCell>{{ task.last_task.taskDate }}</CTableDataCell>
-                    <CTableDataCell>{{ task.last_task.caudal }}</CTableDataCell>
-                    <CTableDataCell>{{ task.last_task.nivelFreatico }}</CTableDataCell>
-                    <CTableDataCell>{{ task.last_task.totalizador }}</CTableDataCell>
-                </template>
-  
-                <template v-else>
-                    <CTableDataCell>&nbsp;</CTableDataCell>
-                    <CTableDataCell>&nbsp;</CTableDataCell>
-                    <CTableDataCell>&nbsp;</CTableDataCell>
-                    <CTableDataCell>&nbsp;</CTableDataCell>
-                </template>
-  
-                <template v-if="task.next_task !== null">
-                    <CTableDataCell>{{ task.next_task.taskDate }}</CTableDataCell>
-                </template>
-  
-                <template v-else>
-                    <CTableDataCell>&nbsp;</CTableDataCell>
-                </template>
-                
-                <CTableDataCell>{{ task.sync_status.message }}</CTableDataCell>
                 
                 
-                                
-            </CTableRow>
-        </CTableBody>
-    </CTable>
+                </CTableRow>
+            </CTableBody> 
+        
+            
+            
+        
+        </CTable>
+    </template>
+    
+
 
     
 </template>
@@ -112,7 +129,8 @@
                 clientsFilter: [],
                 selectedDevices: [],
                 devicesFilter: [],
-                totalDevices: []
+                totalDevices: [],
+                isLoading: false,
             }
             
         },
@@ -183,18 +201,25 @@
             }, 
 
             async getStatusTasks() {
-                const response = await axios.get(
-                    this.$store.state.backendUrl + '/syncStatus',
-                    {
-                        headers: {
-                            'Content-Type': 'application/json',
-                            Authorization: 'Bearer ' + this.$store.state.token,
+                this.isLoading = true; 
+                try {
+                    const response = await axios.get(
+                        this.$store.state.backendUrl + '/syncStatus',
+                        {
+                            headers: {
+                                'Content-Type': 'application/json',
+                                Authorization: 'Bearer ' + this.$store.state.token,
+                            }
                         }
-                    }
-                ); 
+                    ); 
 
-                this.statusTasks = response.data; 
-                console.log(this.statusTasks); 
+                    this.statusTasks = response.data;
+                    this.isLoading = false;  
+                    console.log(this.statusTasks); 
+                } catch(error) {
+                    console.error("Error al obtener datos: ", error);
+                }
+                
             },
 
             async getDevicesByClients() { 

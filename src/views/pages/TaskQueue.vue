@@ -47,9 +47,12 @@
             </CTableRow>
         </CTableHead>
         <CTableBody>
-            <CTableRow v-for="(task, index) in tasksQueue" :key="task.id">
+            <CTableRow v-for="(task, index) in tasksQueue.data" :key="task.id">
                 <CTableDataCell>{{ getStepName(task.step) }} </CTableDataCell>
-                <CTableDataCell>{{ task.client.name }} </CTableDataCell>
+                <template v-if="task.client && task.client.name">
+                    <CTableDataCell>{{ task.client.name }} </CTableDataCell>
+                </template>
+                
                 <CTableDataCell>{{ task.taskDate }} </CTableDataCell>
                 <CTableDataCell>{{ task.taskHour }} </CTableDataCell>
                 <CTableDataCell>{{ task.device.zeusName }} </CTableDataCell>
@@ -68,6 +71,24 @@
             </CTableRow>
         </CTableBody>
     </CTable>
+
+    <nav aria-label="Page navigation example">
+        <ul class="pagination justify-content-center">
+            <li class="page-item" v-bind:class="{'disabled': currentPage === 1}" @click="prevPage">
+                <a class="page-link" aria-label="Previous">
+                    <span aria-hidden="true">&laquo;</span>
+                </a>
+            </li>
+            <li v-for="page in paginatedPages" :key="page" :class="['page-item', { active: page === currentPage, disabled: page === '...' }]" @click="page !== '...' && getQueueTasks(page)">
+            <a class="page-link">{{ page }}</a>
+        </li>
+            <li class="page-item" @click="nextPage" v-bind:class="{'disabled': currentPage === totalPages}">
+                <a class="page-link" aria-label="Next">
+                    <span aria-hidden="true">&raquo;</span>
+                </a>
+            </li>
+        </ul>
+    </nav> 
 </template>
 
 <script>
@@ -92,7 +113,13 @@
                 clientsFilter: [],
                 devicesFilter: [],
                 dateRange: [null, null],
-                formatDates: [null, null], 
+                formatDates: [null, null],
+                currentPage: 1,
+                totalPages: 1,
+                sortBy: 'id',
+                descending: false,
+                rowsPerPage: 10,
+                pageRange: 2,
             }
         },
 
@@ -102,8 +129,55 @@
             //this.getClients();
             //this.getDevices(); 
         }, 
+        computed: {
+            paginatedPages() {
+                const pages = [];
+                const total = this.totalPages;
+                const current = this.currentPage;
+                const range = this.pageRange;
+                
+                if (total <= 1) return [1]; // No hay paginación si solo hay una página
 
+                // Añadir siempre la primera página
+                pages.push(1);
+
+                // Mostrar páginas alrededor de la página actual
+                let start = Math.max(2, current - range);
+                let end = Math.min(total - 1, current + range);
+
+                if (start > 2) {
+                    pages.push('...');
+                }
+
+                for (let i = start; i <= end; i++) {
+                    pages.push(i);
+                }
+
+                if (end < total - 1) {
+                    pages.push('...');
+                }
+
+                // Añadir siempre la última página
+                if (total > 1) {
+                    pages.push(total);
+                }
+
+                return pages;
+            },
+        },
         methods: {
+            prevPage() {
+                if (this.currentPage > 1) {
+                    this.currentPage--;
+                    this.getQueueTasks(this.currentPage);
+                }
+            },
+            nextPage() {
+                if (this.currentPage < this.totalPages) {
+                    this.currentPage++;
+                    this.getQueueTasks(this.currentPage);
+                }
+            },
             getStepName(step) {
                 let name; 
                 switch(step) {
@@ -134,7 +208,7 @@
             },
            
            
-            async getQueueTasks() {
+            async getQueueTasks(page = 1) {
                 let date1, date2; 
                 date1 = this.dateRange[0]; 
                 date2 = this.dateRange[1]; 
@@ -142,24 +216,29 @@
 
                 try {
                     let params = {
-                        'clients': this.clientsFilter,
-                        'devices': this.devices,
-                        'date1': date1,
-                        'date2': date2,
+                        clients: this.clientsFilter,
+                        devices: this.devices,
+                        date1: date1,
+                        date2: date2,
+                        page: page,
+                        rowsPerPage: this.rowsPerPage,
                     }
                     const response = await axios.get(
                         this.$store.state.backendUrl + '/tasks',
                         {
-                        params,
-                        headers: {
-                            'Content-Type': 'application/json',
-                            Authorization: 'Bearer ' + this.$store.state.token,
-                        }
+                            params,
+                            headers: {
+                                'Content-Type': 'application/json',
+                                Authorization: 'Bearer ' + this.$store.state.token,
+                            }
                         }
                     );
                     
                     this.tasksQueue = response.data;
                     console.log(this.tasksQueue); 
+
+                    this.currentPage = response.data.current_page;
+                    this.totalPages = response.data.last_page; 
 
                 } catch (error) {
                     console.error('Error en la solicitud a la API:', error);
@@ -185,7 +264,6 @@
                         this.$store.state.backendUrl + '/devices',
                         {
                             client: true,
-                            client_id: 2,
                             headers: {
                                 'Content-Type': 'application/json',
                                 Authorization: 'Bearer ' + this.$store.state.token,

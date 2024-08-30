@@ -8,7 +8,7 @@
         </CCol>
         <CCol class="col-3">
             <DeviceFilter 
-                :allDevices="devicesFilter"
+                :allDevices="totalDevices"
                 @filter="handleDevices"
             /> 
         </CCol>
@@ -26,34 +26,61 @@
 
 
     </CRow>
+    <template v-if="isLoading" >
+        <div class="d-flex flex-column align-items-center justify-content-center mt-5">
+            <h5 class="text-bold">Cargando datos...</h5>
+            <CSpinner color="dark"/>
+        </div>
+                
+    </template>
+    <template v-else>
+        <CTable class="mt-4" striped bordered>
+            <CTableHead color="dark">
+                <CTableRow>
+                    <CTableHeaderCell scope="col">Cliente</CTableHeaderCell>
+                    <CTableHeaderCell scope="col">Nombre</CTableHeaderCell>
+                    <CTableHeaderCell scope="col">Código zeus</CTableHeaderCell>
+                    <CTableHeaderCell scope="col">Fecha</CTableHeaderCell>
+                    <CTableHeaderCell scope="col">Error</CTableHeaderCell>
+                </CTableRow>
+            </CTableHead>
+            <CTableBody>
+                <CTableRow v-for="(task, index) in displayedTasks" :key="index">
+                    <template v-if="task.client !== null">
+                        <CTableDataCell>{{ task.client.name }} </CTableDataCell>
+                    </template>
+                    <template v-else> 
+                        <CTableDataCell> </CTableDataCell>
+                    </template>
+                    <CTableDataCell> {{ task.device.zeusName }} </CTableDataCell>
+                    <CTableDataCell>{{ task.device.zeusCode }} </CTableDataCell>
+                    <CTableDataCell>{{ task.last_error.updated_at }} </CTableDataCell>
+                    <CTableDataCell>{{ task.last_error.message }} </CTableDataCell>
+                </CTableRow>
+            </CTableBody>
+        </CTable>
 
-    <CTable class="mt-4" striped bordered>
-        <CTableHead>
-            <CTableRow>
-                <CTableHeaderCell scope="col">Cliente</CTableHeaderCell>
-                <CTableHeaderCell scope="col">Nombre</CTableHeaderCell>
-                <CTableHeaderCell scope="col">Código zeus</CTableHeaderCell>
-                <CTableHeaderCell scope="col">Fecha</CTableHeaderCell>
-                <CTableHeaderCell scope="col">Error</CTableHeaderCell>
-            </CTableRow>
-        </CTableHead>
-        <CTableBody>
-            <CTableRow v-for="(task, index) in displayedTasks" :key="index">
-                <template v-if="task.client !== null">
-                    <CTableDataCell>{{ task.client.name }} </CTableDataCell>
-                </template>
-                <template v-else> 
-                    <CTableDataCell> </CTableDataCell>
-                </template>
-                <CTableDataCell> {{ task.device.zeusName }} </CTableDataCell>
-                <CTableDataCell>{{ task.device.zeusCode }} </CTableDataCell>
-                <CTableDataCell>{{ task.last_error.updated_at }} </CTableDataCell>
-                <CTableDataCell>{{ task.last_error.message }} </CTableDataCell>
-            </CTableRow>
-        </CTableBody>
-    </CTable>
+        <nav aria-label="Page navigation example">
+            <ul class="pagination justify-content-center">
+                <li class="page-item" v-bind:class="{'disabled': currentPage === 1}" @click="prevPage">
+                    <a class="page-link" aria-label="Previous">
+                        <span aria-hidden="true">&laquo;</span>
+                    </a>
+                </li>
+                <li v-for="page in paginatedPages" :key="page" :class="['page-item', { active: page === currentPage, disabled: page === '...' }]" @click="page !== '...' && getFailedTasks(page)">
+                <a class="page-link">{{ page }}</a>
+            </li>
+                <li class="page-item" @click="nextPage" v-bind:class="{'disabled': currentPage === totalPages}">
+                    <a class="page-link" aria-label="Next">
+                        <span aria-hidden="true">&raquo;</span>
+                    </a>
+                </li>
+            </ul>
+        </nav> 
+    </template>
+    
 
-    <div class="style-pagination mt-5">
+    <!-- <div class="style-pagination mt-5">
         <vue-awesome-paginate 
             :total-items="filteredTasks.length"
             :items-per-page="perPage"
@@ -89,7 +116,7 @@
             </template>
         </vue-awesome-paginate>
     
-    </div>
+    </div> -->
     
 </template>
 
@@ -117,22 +144,63 @@
                 devicesFilter: [],
                 totalDevices: [],
                 selectedDevices: [], // dispositivos seleccionados cuando ya se renderizan
-                perPage: 10,
+                /* perPage: 10,
+                currentPage: 1, 
+                totalPages: 0,*/
                 currentPage: 1,
-                totalPages: 0
-                
+                totalPages: 1,
+                sortBy: 'id',
+                descending: false,
+                rowsPerPage: 40,
+                pageRange: 2,
+                isLoading: false,
             }
             
         },
        
         computed: {
+            paginatedPages() {
+                const pages = [];
+                const total = this.totalPages;
+                const current = this.currentPage;
+                const range = this.pageRange;
+                
+                if (total <= 1) return [1]; // No hay paginación si solo hay una página
+
+                // Añadir siempre la primera página
+                pages.push(1);
+
+                // Mostrar páginas alrededor de la página actual
+                let start = Math.max(2, current - range);
+                let end = Math.min(total - 1, current + range);
+
+                if (start > 2) {
+                    pages.push('...');
+                }
+
+                for (let i = start; i <= end; i++) {
+                    pages.push(i);
+                }
+
+                if (end < total - 1) {
+                    pages.push('...');
+                }
+
+                // Añadir siempre la última página
+                if (total > 1) {
+                    pages.push(total);
+                }
+
+                return pages;
+            },
             displayedTasks() {
-                const startIndex = (this.currentPage - 1) * this.perPage;
-                const endIndex = startIndex + this.perPage;
-                return this.filteredTasks.slice(startIndex, endIndex);
+                //const startIndex = (this.currentPage - 1) * this.perPage;
+                //const endIndex = startIndex + this.perPage;
+                //return this.filteredTasks.slice(startIndex, endIndex);
+                return this.filteredTasks;
             },
             filteredTasks() {
-                let filterTasks = this.failTasks;   
+                let filterTasks = this.failTasks.data;   
                 if (this.clientsFilter.length > 0) {
                     filterTasks = filterTasks.filter(task => 
                         (task.client && task.last_error && this.clientsFilter.includes(task.last_error.client_id))
@@ -156,20 +224,33 @@
                 //const endIndex = startIndex + this.perPage; 
 
                 //return filterTasks.slice(startIndex, endIndex);  
+                console.log("FILTER TASKS : ", filterTasks)
                 return filterTasks;
             }
 
         }, 
-        watch: {
+        /* watch: {
             filteredTasks() {
                 this.totalPages = Math.ceil(this.filteredTasks.length / this.perPage);
             }
-        },
+        }, */
         mounted() {
             this.getFailedTasks(); 
         },
 
         methods: {
+            prevPage() {
+                if (this.currentPage > 1) {
+                    this.currentPage--;
+                    this.getFailedTasks(this.currentPage);
+                }
+            },
+            nextPage() {
+                if (this.currentPage < this.totalPages) {
+                    this.currentPage++;
+                    this.getFailedTasks(this.currentPage);
+                }
+            },
             handleSearch(search) {
                 this.searchFilter = search; 
             }, 
@@ -182,7 +263,6 @@
             handleDevices(options) {
                 //this.devicesFilter = options; 
                 //this.getDevicesByClients(); 
-                
                 //console.log("DEVICES: ",options); 
                 if (!this.selectedDevices.includes(options)) {
                     this.selectedDevices.push(options);
@@ -193,19 +273,34 @@
 
             
 
-            async getFailedTasks() {
-                const response = await axios.get(
+            async getFailedTasks(page = 1) {
+                this.isLoading = true; 
+                try {
+                    const response = await axios.get(
                     this.$store.state.backendUrl + '/syncManual',
                     {
+                        params: {
+                            page: page,
+                            rowsPerPage: this.rowsPerPage,
+                        },
                         headers: {
                             'Content-Type': 'application/json',
                             Authorization: 'Bearer ' + this.$store.state.token,
                         }
                     }
-                ); 
+                    ); 
 
-                this.failTasks = response.data; 
-                console.log(this.failTasks); 
+                    this.failTasks = response.data; 
+                    this.isLoading = false;
+                    console.log(this.failTasks); 
+
+                    this.currentPage = response.data.current_page;
+                    this.totalPages = response.data.last_page; 
+                } catch (error) {
+                    this.isLoading = false;
+                    console.error ("Error en getFailedTasks: ", error); 
+                }
+                
                 
                 
             },
