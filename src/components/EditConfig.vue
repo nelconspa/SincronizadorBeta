@@ -378,7 +378,7 @@
                     
                     this.configs = response.data.map(config => ({
                         ...config,
-                        clientName: config.client.name
+                        clientName: config.client?.name ?? '' // O un valor por defecto si `name` no existe
                     }));
                     console.log(this.configs)
 

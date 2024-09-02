@@ -21,7 +21,8 @@
         </CTableHead>
         <CTableBody>
             <CTableRow v-for="(config, index) in filteredConfigs" :key="config.id">
-                <CTableDataCell>{{ config.client.name }} </CTableDataCell>
+
+                <CTableDataCell>{{ clientName }} </CTableDataCell>
                 <CTableDataCell>{{ config.zeusHost }} </CTableDataCell>
                 <CTableDataCell>{{ config.zeusUsername }} </CTableDataCell>
                 <CTableDataCell>{{ config.dgaUsername }} </CTableDataCell>
@@ -193,7 +194,7 @@
                     console.log(response.data); 
                     this.configs = response.data.map(config => ({
                         ...config,
-                        clientName: config.client.name
+                        clientName: config.client?.name ?? '' // O un valor por defecto si `name` no existe
                     }));
                   
 

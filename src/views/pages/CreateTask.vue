@@ -161,17 +161,17 @@
                     dates: dateArray,
                     hours: hours
                 } 
-
-                console.log(params); 
+                console.log(this.$store.state.token); 
+                
                 try {
                     const response = await axios.post(
                         this.$store.state.backendUrl + '/tasks-create',
-
+                        params,
                         {
                             headers: {
-                                'Content-Type': 'application/json',
-                                Authorization: 'Bearer ' + this.$store.state.token,
-                            }
+                                    'Content-Type': 'application/json',
+                                    Authorization: 'Bearer ' + this.$store.state.token,
+                                },
                         }
                     );
                     
@@ -192,9 +192,9 @@
 
                         {
                             headers: {
-                                'Content-Type': 'application/json',
-                                Authorization: 'Bearer ' + this.$store.state.token,
-                            }
+                                    'Content-Type': 'application/json',
+                                    Authorization: 'Bearer ' + this.$store.state.token,
+                                },
                         }
                     );
                     
