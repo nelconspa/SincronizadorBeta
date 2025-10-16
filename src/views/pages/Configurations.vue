@@ -9,7 +9,16 @@
             <SearchBarFilter @search="handleSearch" /> 
         </CCol>
     </CRow>
-    <CTable class="mt-5">
+
+    <template v-if="isLoading" >
+        <div class="d-flex flex-column align-items-center justify-content-center mt-5">
+            <h5 class="text-bold">Cargando configuraciones...</h5>
+            <CSpinner color="dark"/>
+        </div>
+                
+    </template>
+    <template v-else>
+        <CTable class="mt-5">
         <CTableHead>
             <CTableRow color="dark">
                 <CTableHeaderCell scope="col">Cliente</CTableHeaderCell>
@@ -22,7 +31,7 @@
         <CTableBody>
             <CTableRow v-for="(config, index) in filteredConfigs" :key="config.id">
 
-                <CTableDataCell>{{ clientName }} </CTableDataCell>
+                <CTableDataCell>{{ config.clientName }} </CTableDataCell>
                 <CTableDataCell>{{ config.zeusHost }} </CTableDataCell>
                 <CTableDataCell>{{ config.zeusUsername }} </CTableDataCell>
                 <CTableDataCell>{{ config.dgaUsername }} </CTableDataCell>
@@ -36,7 +45,9 @@
                 </CTableDataCell>   
             </CTableRow>
         </CTableBody>
-    </CTable>
+        </CTable>
+    </template>
+    
 
     <AddConfigModal
         :showModal="showAddModal"
@@ -95,7 +106,8 @@
                 showAddModal: false,
                 showEditModal: false,
                 showDeleteModal: false,
-                config_id: null
+                config_id: null,
+                isLoading: false,
             }
             
         },
@@ -177,6 +189,7 @@
             },
 
             async getConfigs() {
+                this.isLoading = true;
                 try {
                     const response = await axios.get(
                         this.$store.state.backendUrl + '/client_configs',
@@ -196,9 +209,11 @@
                         ...config,
                         clientName: config.client?.name ?? '' // O un valor por defecto si `name` no existe
                     }));
+                    this.isLoading = false; 
                   
 
                 } catch (error) {
+                    this.isLoading = false; 
                     console.error('Error en la solicitud a la API:', error);
                     
                     // this.errorMsg = "Ha ocurrido un error: " + error;

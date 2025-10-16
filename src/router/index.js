@@ -72,9 +72,14 @@ const routes = [
       },
 
       {
-        path: '/failed-tasks',
-        name: 'FailedTask',
+        path: '/failed-tasks-dga',
+        name: 'FailedTaskDga',
         component: () => import('@/views/pages/FailedTasks.vue'),
+      },
+      {
+        path: '/failed-tasks-zeus',
+        name: 'FailedTaskZeus',
+        component: () => import('@/views/pages/FailedTasksZeus.vue'),
       },
       {
         path: '/sync-status',

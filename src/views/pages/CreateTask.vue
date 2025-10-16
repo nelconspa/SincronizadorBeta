@@ -53,6 +53,22 @@
         </CCard>
     </div>
     
+    <template v-if="isCompleted">
+        <CToaster placement="top-end">
+            <CToast visible :color="toast.color" class="text-white" :delay="toast.delay">
+                <CToastHeader closeButton :class="toast.error ? 'bg-danger text-white' : 'bg-success text-white'">
+                <span class="me-auto fw-bold">{{ toast.title }}</span>
+                </CToastHeader>
+                <CToastBody>
+                    {{ toast.content }}
+                </CToastBody>  
+            </CToast>
+        </CToaster>
+        
+        
+    </template>
+    
+    
 </template>
 
 <script>
@@ -84,6 +100,8 @@
                 selectedHours: {},
                 isSelected: false,
                 isCompleted: false,
+                toast: {},
+
             }
         },
 
@@ -152,6 +170,7 @@
             }, 
 
             async createTask() {
+                this.toast = {}; 
                 let devicesLength = this.selectedDevices.length; 
                 const dateArray = [this.date.start, this.date.end]; 
                 let hours = this.convertFormatHour(); 
@@ -161,8 +180,10 @@
                     dates: dateArray,
                     hours: hours
                 } 
-                console.log(this.$store.state.token); 
                 
+
+                
+
                 try {
                     const response = await axios.post(
                         this.$store.state.backendUrl + '/tasks-create',
@@ -176,12 +197,33 @@
                     );
                     
                     this.tasks = response.data;
+                    
+                    this.isCompleted = true; 
+                    this.toast = {
+                        error: false,
+                        title: 'Tarea creada',
+                        content: 'Tarea creada con éxito',
+                        color: 'success',
+                        delay: 2000
+                    }; 
+
                 } catch (error) {
+                    this.isCompleted = true; 
+                    
+                    this.toast = {
+                        error: true, 
+                        title: 'Error',
+                        content: `Error al crear tarea`,
+                        color: 'danger',
+                        delay: 2000
+                    }; 
                     console.error('Error en la solicitud a la API:', error);
                     this.ShowError = true;
                         
                         // this.errorMsg = "Ha ocurrido un error: " + error;
                 }
+
+                
 
 
             },

@@ -9,30 +9,41 @@
             <SearchBarFilter @search="handleSearch" /> 
         </CCol>
     </CRow>
-    <CTable class="mt-5">
-        <CTableHead>
-            <CTableRow color="dark">
-                <CTableHeaderCell scope="col">Nombre</CTableHeaderCell>
-                <CTableHeaderCell scope="col">Herramientas</CTableHeaderCell>
+
+    <template v-if="isLoading" >
+        <div class="d-flex flex-column align-items-center justify-content-center mt-5">
+            <h5 class="text-bold">Cargando clientes...</h5>
+            <CSpinner color="dark"/>
+        </div>
                 
-            </CTableRow>
-        </CTableHead>
-        <CTableBody>
-            <CTableRow v-for="(client, index) in filteredClients" :key="client.id">
-                <CTableDataCell>{{ client.name }} </CTableDataCell>
-                <CTableDataCell>
-                    <CButton @click="editClient(client)">
-                        <font-awesome-icon icon="pen-to-square" size="xl" />
-                    </CButton>
-                    <CButton @click="deleteClient(client)">
-                        <font-awesome-icon icon="trash" size="xl" />
-                    </CButton>
-                </CTableDataCell>
-               
+    </template>
+    <template v-else>
+        <CTable class="mt-5">
+            <CTableHead>
+                <CTableRow color="dark">
+                    <CTableHeaderCell scope="col">Nombre</CTableHeaderCell>
+                    <CTableHeaderCell scope="col">Herramientas</CTableHeaderCell>
+                    
+                </CTableRow>
+            </CTableHead>
+            <CTableBody>
+                <CTableRow v-for="(client, index) in filteredClients" :key="client.id">
+                    <CTableDataCell>{{ client.name }} </CTableDataCell>
+                    <CTableDataCell>
+                        <CButton @click="editClient(client)">
+                            <font-awesome-icon icon="pen-to-square" size="xl" />
+                        </CButton>
+                        <CButton @click="deleteClient(client)">
+                            <font-awesome-icon icon="trash" size="xl" />
+                        </CButton>
+                    </CTableDataCell>
                 
-            </CTableRow>
-        </CTableBody>
-    </CTable>
+                    
+                </CTableRow>
+            </CTableBody>
+        </CTable>
+    </template>
+    
     <AddClientModal
         :showAddModal="showAddModal"
         @cerrarAddModal="onCloseAdd"
@@ -90,7 +101,8 @@
                 showAddModal: false,
                 showEditModal: false,
                 showDeleteModal: false,
-                client_id: null
+                client_id: null,
+                isLoading: false,
             }
             
         },
@@ -166,6 +178,7 @@
                 }
             },
             async getClients() {
+                this.isLoading = true; 
                 try {
                     const response = await axios.get(
                         this.$store.state.backendUrl + '/clients',
@@ -178,8 +191,10 @@
                     );
                     
                     this.clients = response.data;
+                    this.isLoading = false; 
                     console.log(this.clients[0])
                 } catch (error) {
+                    this.isLoading = false; 
                     console.error('Error en la solicitud a la API:', error);
                     this.ShowError = true;
                         

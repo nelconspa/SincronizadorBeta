@@ -1,7 +1,7 @@
 <template>
   <CFooter class="px-4">
     <div>
-      <a href="#" target="_blank">Francisco Levín</a>
+      
       <span class="ms-1"
         >&copy; {{ new Date().getFullYear() }} Nelcon S.A</span
       >

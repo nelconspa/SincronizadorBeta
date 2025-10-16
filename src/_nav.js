@@ -33,8 +33,14 @@ export default [
   },
   {
     component: 'CNavItem',
-    name: 'Fallidas',
-    to: '/failed-tasks',
+    name: 'Fallidas Zeus',
+    to: '/failed-tasks-zeus',
+    icon: 'cil-settings',
+  },
+  {
+    component: 'CNavItem',
+    name: 'Fallidas DGA',
+    to: '/failed-tasks-dga',
     icon: 'cil-settings',
   },
 

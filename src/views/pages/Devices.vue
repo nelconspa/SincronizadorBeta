@@ -10,38 +10,53 @@
             <SearchBarFilter @search="handleSearch" /> 
         </CCol>
     </CRow>
-    <CTable class="mt-5">
-        <CTableHead>
-            <CTableRow color="dark">
-                <CTableHeaderCell scope="col">Cliente</CTableHeaderCell>
-                <CTableHeaderCell scope="col">Zeus Nombre</CTableHeaderCell>
-                <CTableHeaderCell scope="col">Zeus Código</CTableHeaderCell>
-                <CTableHeaderCell scope="col">DGA Código</CTableHeaderCell>
-                <CTableHeaderCell scope="col">Habilitado</CTableHeaderCell>
-                <CTableHeaderCell scope="col">Editar</CTableHeaderCell>
-            </CTableRow>
-        </CTableHead>
-        <CTableBody>
-            <CTableRow v-for="(device, index) in filteredDevices" :key="device.id">
-                <CTableDataCell>{{ device.client.name }} </CTableDataCell>
-                <CTableDataCell>{{ device.zeusName }} </CTableDataCell>
-                <CTableDataCell>{{ device.zeusCode }} </CTableDataCell>
-                <CTableDataCell>{{ device.dgaCode }} </CTableDataCell>
-                <CTableDataCell class="text-center">
-                    <CFormCheck :checked="device.enabled" disabled />
-                </CTableDataCell>
-                <CTableDataCell>
-                    <CButton @click="editDevice(device)">
-                        <font-awesome-icon icon="pen-to-square" size="xl" />
-                    </CButton>
-                    <CButton @click="deleteDevice(device)">
-                        <font-awesome-icon icon="trash" size="xl" />
-                    </CButton>
-                </CTableDataCell>
+    <template v-if="isLoading" >
+        <div class="d-flex flex-column align-items-center justify-content-center mt-5">
+            <h5 class="text-bold">Cargando dispositivos...</h5>
+            <CSpinner color="dark"/>
+        </div>
                 
-            </CTableRow>
-        </CTableBody>
-    </CTable>
+    </template>
+    <template v-else>
+        <CTable class="mt-5">
+            <CTableHead>
+                <CTableRow color="dark">
+                    <CTableHeaderCell scope="col">Cliente</CTableHeaderCell>
+                    <CTableHeaderCell scope="col">Zeus Nombre</CTableHeaderCell>
+                    <CTableHeaderCell scope="col">Zeus Código</CTableHeaderCell>
+                    <CTableHeaderCell scope="col">DGA Código</CTableHeaderCell>
+                    <CTableHeaderCell scope="col">Habilitado</CTableHeaderCell>
+                    <CTableHeaderCell scope="col">Editar</CTableHeaderCell>
+                </CTableRow>
+            </CTableHead>
+            <CTableBody>
+                <CTableRow v-for="(device, index) in filteredDevices" :key="device.id">
+                    <template v-if="device.client">
+                        <CTableDataCell>{{ device.client.name }} </CTableDataCell>
+                    </template>
+                    <template v-else>
+                        <CTableDataCell></CTableDataCell>
+                    </template>
+                    <CTableDataCell>{{ device.zeusName }} </CTableDataCell>
+                    <CTableDataCell>{{ device.zeusCode }} </CTableDataCell>
+                    <CTableDataCell>{{ device.dgaCode }} </CTableDataCell>
+                    <CTableDataCell class="text-center">
+                        <CFormCheck :checked="device.enabled" disabled />
+                    </CTableDataCell>
+                    <CTableDataCell>
+                        <CButton @click="editDevice(device)">
+                            <font-awesome-icon icon="pen-to-square" size="xl" />
+                        </CButton>
+                        <CButton @click="deleteDevice(device)">
+                            <font-awesome-icon icon="trash" size="xl" />
+                        </CButton>
+                    </CTableDataCell>
+                    
+                </CTableRow>
+            </CTableBody>
+        </CTable>
+    </template>
+    
     <AddDeviceModal
         :showModal="showAddModal"
         @cerrar="onCloseAdd"
@@ -98,6 +113,7 @@
                 showEditModal: false, 
                 showDeleteModal: false,
                 device_id: null,
+                isLoading: false,
                 
             }
             
@@ -111,7 +127,7 @@
                         devices.zeusName.toLowerCase().includes(this.searchFilter.toLowerCase()) || 
                         devices.zeusCode.toLowerCase().includes(this.searchFilter.toLowerCase()) || 
                         devices.dgaCode.toLowerCase().includes(this.searchFilter.toLowerCase()) || 
-                        devices.client.name.toLowerCase().includes(this.searchFilter.toLowerCase())
+                        devices.client?.name?.toLowerCase().includes(this.searchFilter.toLowerCase())
                     );
                 }
 
@@ -143,6 +159,7 @@
                 this.showAddModal = true; 
             },
             async getDevices() {
+                this.isLoading = true; 
                 try {
                     const response = await axios.get(
                         this.$store.state.backendUrl + '/devices',
@@ -158,9 +175,11 @@
                     );
                     
                     this.devices = response.data;
+                    this.isLoading = false; 
                     console.log("DEVICES: ",this.devices)
 
                 } catch (error) {
+                    this.isLoadi9ng = false; 
                     console.error('Error en la solicitud a la API:', error);
                     this.ShowError = true;
                         

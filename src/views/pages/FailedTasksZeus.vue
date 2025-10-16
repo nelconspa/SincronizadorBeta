@@ -1,27 +1,31 @@
 <template>
     <CRow>
-    <CCol class="col-3">
-        <ClientFilter 
-            @filter="handleClients"
-        /> 
-    </CCol>
-    <CCol class="col-3">
-        <DeviceFilter 
-            :allDevices="totalDevices"
-            @filter="handleDevices"
-        /> 
-    </CCol>
-    <CCol class="col-4">
-        <SearchBarFilter 
-            @search="handleSearch" 
-        /> 
-    </CCol>
-    <CCol class="col-2 mt-2">
-        <CButton color="primary mt-4" @click="searchOnServer">
-            Buscar
-        </CButton>
-    </CCol>
-</CRow>
+        <CCol class="col-3">
+            <ClientFilter 
+                @filter="handleClients"
+                
+            /> 
+        </CCol>
+        <CCol class="col-3">
+            <DeviceFilter 
+                :allDevices="totalDevices"
+                @filter="handleDevices"
+            /> 
+        </CCol>
+
+        <CCol class="col-4">
+            <SearchBarFilter 
+                @search="handleSearch" 
+            /> 
+        </CCol>
+        <CCol class="col-2 mt-2">
+            <CButton color="primary mt-4" @click="searchOnServer">
+                Buscar
+            </CButton>
+        </CCol>
+
+
+    </CRow>
     <template v-if="isLoading" >
         <div class="d-flex flex-column align-items-center justify-content-center mt-5">
             <h5 class="text-bold">Cargando datos...</h5>
@@ -30,9 +34,6 @@
                 
     </template>
     <template v-else>
-        <div v-if="!displayedTasks || displayedTasks.length === 0" class="text-center mt-5">
-            <h5 class="text-muted">No se encontraron resultados</h5>
-        </div>
         <CTable class="mt-4" striped bordered>
             <CTableHead color="dark">
                 <CTableRow>
@@ -46,15 +47,15 @@
             <CTableBody>
                 <CTableRow v-for="(task, index) in displayedTasks" :key="index">
                     <template v-if="task.client !== null">
-                        <CTableDataCell>{{ task.client_name }} </CTableDataCell>
+                        <CTableDataCell>{{ task.client.name }} </CTableDataCell>
                     </template>
                     <template v-else> 
                         <CTableDataCell> </CTableDataCell>
                     </template>
-                    <CTableDataCell> {{ task.zeusName }} </CTableDataCell>
-                    <CTableDataCell>{{ task.zeusCode }} </CTableDataCell>
-                    <CTableDataCell>{{ task.updated_at }} </CTableDataCell>
-                    <CTableDataCell>{{ task.message }} </CTableDataCell>
+                    <CTableDataCell> {{ task.device.zeusName }} </CTableDataCell>
+                    <CTableDataCell>{{ task.device.zeusCode }} </CTableDataCell>
+                    <CTableDataCell>{{ task.last_error?.updated_at }} </CTableDataCell>
+                    <CTableDataCell>{{ task.last_error?.message }} </CTableDataCell>
                 </CTableRow>
             </CTableBody>
         </CTable>
@@ -193,29 +194,29 @@
                 return pages;
             },
             displayedTasks() {
+                //const startIndex = (this.currentPage - 1) * this.perPage;
+                //const endIndex = startIndex + this.perPage;
+                //return this.filteredTasks.slice(startIndex, endIndex);
                 return this.filteredTasks;
             },
             filteredTasks() {
                 let filterTasks = this.failTasks.data;   
                 /* if (this.clientsFilter.length > 0) {
-                    console.log("CLIENTES FILTRADOS: ", this.clientsFilter);
                     filterTasks = filterTasks.filter(task => 
-                        (this.clientsFilter.includes(task.client_id))
+                        (task.client && task.last_error && this.clientsFilter.includes(task.last_error.client_id))
                     );
                 }
                 if (this.devicesFilter.length > 0 && this.devicesFilter.length < this.totalDevices.length) {
-                    console.log("DISPOSITIVOS FILTRADOS: ", this.devicesFilter);
                     filterTasks = filterTasks.filter(task => 
-                        (this.devicesFilter.includes(task.device_id))
+                        (task.device && task.last_error && this.devicesFilter.includes(task.last_error.device_id))
                     )
                     
                 }
 
                 if (this.searchFilter !== '') {
-                    console.log("SEARCH FILTER: ", this.searchFilter);
                     filterTasks = filterTasks.filter(task => 
-                        (task.zeusName.toLowerCase().includes(this.searchFilter.toLowerCase())) ||
-                        (task.client_name.toLowerCase().includes(this.searchFilter.toLowerCase()))
+                        (task.device && task.device.zeusName.toLowerCase().includes(this.searchFilter.toLowerCase())) ||
+                        (task.client && task.client.name.toLowerCase().includes(this.searchFilter.toLowerCase()))
                     );
                 } */
 
@@ -223,7 +224,7 @@
                 //const endIndex = startIndex + this.perPage; 
 
                 //return filterTasks.slice(startIndex, endIndex);  
-                //console.log("FILTER TASKS : ", filterTasks)
+                /* console.log("FILTER TASKS : ", filterTasks) */
                 return filterTasks;
             }
 
@@ -255,21 +256,13 @@
             prevPage() {
                 if (this.currentPage > 1) {
                     this.currentPage--;
-                    this.getFailedTasks(this.currentPage, {
-                        clients: this.clientsFilter,
-                        devices: this.devicesFilter,
-                        search: this.searchFilter
-                    });
+                    this.getFailedTasks(this.currentPage);
                 }
             },
             nextPage() {
                 if (this.currentPage < this.totalPages) {
                     this.currentPage++;
-                    this.getFailedTasks(this.currentPage, {
-                        clients: this.clientsFilter,
-                        devices: this.devicesFilter,
-                        search: this.searchFilter
-                    });
+                    this.getFailedTasks(this.currentPage);
                 }
             },
             handleSearch(search) {
@@ -305,7 +298,6 @@
             }, 
 
             
-
             async getFailedTasks(page = 1, filters = {}) {
                 this.isLoading = true; 
                 try {
@@ -323,9 +315,37 @@
                         params.search = filters.search;
                     }
                     const response = await axios.get(
-                    this.$store.state.backendUrl + '/failed-tasks',
+                    this.$store.state.backendUrl + '/syncManual',
+                        {
+                            params,
+                            headers: {
+                                'Content-Type': 'application/json',
+                                Authorization: 'Bearer ' + this.$store.state.token,
+                            }
+                        }
+                    ); 
+
+                    this.failTasks = response.data; 
+                    this.isLoading = false;
+                    console.log(this.failTasks); 
+
+                    this.currentPage = response.data.current_page;
+                    this.totalPages = response.data.last_page; 
+                } catch (error) {
+                    this.isLoading = false;
+                    console.error ("Error en getFailedTasks: ", error); 
+                }
+            },
+            /* async getFailedTasks(page = 1) {
+                this.isLoading = true; 
+                try {
+                    const response = await axios.get(
+                    this.$store.state.backendUrl + '/syncManual',
                     {
-                        params,
+                        params: {
+                            page: page,
+                            rowsPerPage: this.rowsPerPage,
+                        },
                         headers: {
                             'Content-Type': 'application/json',
                             Authorization: 'Bearer ' + this.$store.state.token,
@@ -342,8 +362,11 @@
                 } catch (error) {
                     this.isLoading = false;
                     console.error ("Error en getFailedTasks: ", error); 
-                }
-            },
+                } 
+                
+                
+
+            },*/
 
             async getDevicesByClients() { 
                 try {

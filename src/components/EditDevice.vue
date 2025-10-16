@@ -28,6 +28,7 @@
                             :reduce="client => client.id"
                             label="name"
                             placeholder="Seleccione..."
+                            @option:selected="getUserConfig"
                             @input="setTouched('client_id')"
                             feedback="Rellene este campo por favor."
                             :invalid="v$.form.client_id.$error"
@@ -38,10 +39,10 @@
                     <CCol class="col-6 mt-4">
                         <v-select 
                             v-model="form.client_config_id"
-                            :options="configsByClient"
+                            :options="configs"
                             :reduce="config => config.id"
                             placeholder="Seleccione..."
-                            label="zeusHost" 
+                            label="dgaUsername" 
                             @input="setTouched('client_config_id')"
                             feedback="Rellene este campo por favor."
                             :invalid="v$.form.client_config_id.$error"
@@ -298,6 +299,32 @@
                 
                
             },
+
+            getUserConfig(option) {
+                axios.get(
+                    this.$store.state.backendUrl + '/client_configs',
+                    {
+                        params: {
+                            'client_id': option 
+                        },
+                        headers: {
+                            'Content-Type': 'application/json',
+                            Authorization: 'Bearer ' + this.$store.state.token,
+                        }
+                    }
+                )
+                .then(response => {
+                    // Procesa la respuesta aquí
+                    this.configs = response.data;
+                    console.log("configs: ", this.configs);
+                    
+                })
+                .catch(error => {
+                    console.error('Error en la solicitud a la API:', error);
+                    this.ShowError = true;
+                    // this.errorMsg = "Ha ocurrido un error: " + error;
+                });
+            },
             restoreInitialData() {
                 this.fail = false;
                 this.success = false; 
@@ -374,7 +401,7 @@
                     
                     this.configs = response.data.map(config => ({
                         ...config,
-                        clientName: config.client.name
+                        clientName: config.client?.name ?? ''
                     }));
                     console.log(this.configs[0])
 

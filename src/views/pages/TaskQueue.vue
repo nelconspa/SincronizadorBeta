@@ -1,6 +1,6 @@
 <template>
     <CRow>
-        <CCol>
+        <CCol class="col-3">
             <label class="form-label">Fecha</label>
             <DatePicker
                 v-model="dateRange"
@@ -11,7 +11,7 @@
             /> 
         </CCol>
         
-        <CCol class="col-3">
+        <CCol class="col-4">
             <ClientFilter 
                 @filter="handleClients"
                 
@@ -23,11 +23,25 @@
                 @filter="handleDevices"
             /> 
         </CCol>
-        <CCol class="mt-4">
-            <CButton color="primary" @click="getQueueTasks" class="mt-1">
-                Buscar
-            </CButton>
+        <CCol class="mt-4 col-2">
+            <CRow>
+                <CCol>
+                    <CButton color="primary" @click="getQueueTasks" class="mt-2">
+                        Buscar
+                    </CButton>
+                </CCol>
+                <CCol>
+                    <template v-if="isLoading">
+                        <div class="">
+                            <CSpinner color="dark" class="mt-2" />
+                        </div>
+                    </template>
+                    
+                </CCol>
+            </CRow>
+            
         </CCol>
+        
     </CRow>
 
     <CTable class="mt-5">
@@ -120,6 +134,7 @@
                 descending: false,
                 rowsPerPage: 10,
                 pageRange: 2,
+                isLoading: false,
             }
         },
 
@@ -213,7 +228,8 @@
                 date1 = this.dateRange[0]; 
                 date2 = this.dateRange[1]; 
                 this.devices = this.devicesFilter.map(device => device.id); 
-
+                this.isLoading = true; 
+                console.log(this.isLoading); 
                 try {
                     let params = {
                         clients: this.clientsFilter,
@@ -235,12 +251,14 @@
                     );
                     
                     this.tasksQueue = response.data;
+                    this.isLoading = false; 
                     console.log(this.tasksQueue); 
 
                     this.currentPage = response.data.current_page;
                     this.totalPages = response.data.last_page; 
 
                 } catch (error) {
+                    this.isLoading = false; 
                     console.error('Error en la solicitud a la API:', error);
                     this.ShowError = true;
                         
